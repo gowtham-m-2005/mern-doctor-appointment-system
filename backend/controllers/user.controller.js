@@ -5,6 +5,8 @@ const Notification = require("../models/Notification.model");
 const Settings = require("../models/Settings.model");
 const { calculateFee } = require("../utils/feeCalculator");
 const { createNotification } = require("../utils/notificationScheduler");
+const { getCache, setCache, deleteCache, CacheTTL, CacheKeys } = require("../utils/cache");
+const { publishEvent, EventTypes } = require("../utils/eventBus");
 
 exports.getProfile = async (req, res) => {
   try {
@@ -60,7 +62,15 @@ exports.getDoctors = async (req, res) => {
 
 exports.getDoctorSlots = async (req, res) => {
   try {
-    const doctor = await Doctor.findById(req.params.id);
+    const doctorId = req.params.id;
+    
+    // Check cache first
+    const cached = await getCache(CacheKeys.doctorSlots(doctorId));
+    if (cached) {
+      return res.json(cached);
+    }
+
+    const doctor = await Doctor.findById(doctorId);
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
     // Only return future unbooked slots
@@ -68,6 +78,10 @@ exports.getDoctorSlots = async (req, res) => {
     const available = doctor.availableSlots.filter(
       (s) => !s.isBooked && s.date >= today
     );
+    
+    // Cache the slots
+    await setCache(CacheKeys.doctorSlots(doctorId), available, CacheTTL.AVAILABLE_SLOTS);
+    
     res.json(available);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -162,29 +176,20 @@ exports.bookAppointment = async (req, res) => {
       totalFee: fees.totalFee,
     });
 
-    // Notify patient
-    const formattedDate = new Date(slot.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    await createNotification(
-      req.user._id,
-      "Appointment Requested",
-      `Your appointment request for ${formattedDate} at ${slot.startTime} is pending doctor confirmation.`,
-      "booking",
-      appointment._id
-    );
-
-    // Notify doctor
-    await createNotification(
-      doctor.user,
-      "New Appointment Request",
-      `${req.user.name} has requested an appointment for ${formattedDate} at ${slot.startTime}. Please confirm or cancel.`,
-      "booking",
-      appointment._id
-    );
+    // Invalidate cache
+    await deleteCache(CacheKeys.doctorSlots(doctorId));
 
     const populated = await appointment.populate([
       { path: "user", select: "name email" },
       { path: "doctor", populate: { path: "user", select: "name" } },
     ]);
+
+    // Emit event for notification service
+    await publishEvent(EventTypes.APPOINTMENT_BOOKED, {
+      appointment: populated,
+      user: { _id: req.user._id, name: req.user.name },
+      doctor: { _id: doctor._id, user: doctor.user }
+    });
 
     res.status(201).json(populated);
   } catch (err) {
@@ -199,7 +204,7 @@ exports.getMyAppointments = async (req, res) => {
         path: "doctor",
         populate: { path: "user", select: "name email phone profilePic" },
       })
-      .sort({ "slot.date": -1, "slot.startTime": -1 });
+      .sort({ "slot.date": 1, "slot.startTime": 1 });
     res.json(appointments);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -339,7 +344,7 @@ exports.getMyPrescriptions = async (req, res) => {
         path: "doctor",
         populate: { path: "user", select: "name email phone" },
       })
-      .sort({ "slot.date": -1, "slot.startTime": -1 });
+      .sort({ "slot.date": 1, "slot.startTime": 1 });
 
     const prescriptions = appointments.map((appt) => ({
       appointmentId: appt._id,

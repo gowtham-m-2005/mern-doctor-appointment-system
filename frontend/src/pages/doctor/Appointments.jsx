@@ -18,6 +18,7 @@ const DoctorAppointments = () => {
   const [prescription, setPrescription] = useState({ notes: '', medicines: [{ name: '', dosage: '', duration: '' }] })
   const [saving, setSaving] = useState(false)
   const [highlightAppointmentId, setHighlightAppointmentId] = useState(null)
+  const [actionLoading, setActionLoading] = useState({})
 
   useEffect(() => {
     fetchAppointments()
@@ -82,34 +83,48 @@ const DoctorAppointments = () => {
         notes: prescription.notes,
         medicines: prescription.medicines.filter((m) => m.name),
       })
+      // Complete the appointment after adding prescription
+      await api.put(`/doctor/appointments/${selectedAppt._id}/complete`)
       setSelectedAppt(null)
       setPrescription({ notes: '', medicines: [{ name: '', dosage: '', duration: '' }] })
       fetchAppointments()
+      toast.success('Prescription added and appointment completed')
     } catch (err) {
       console.error(err)
+      toast.error(err.response?.data?.message || 'Failed to complete appointment')
     } finally {
       setSaving(false)
     }
   }
 
   const completeAppointment = async (apptId) => {
+    setActionLoading(prev => ({ ...prev, [apptId]: 'complete' }))
     try {
       await api.put(`/doctor/appointments/${apptId}/complete`)
       toast.success('Appointment marked as completed')
       fetchAppointments()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to complete appointment')
+    } finally {
+      setActionLoading(prev => ({ ...prev, [apptId]: null }))
     }
   }
 
   const confirmAppointment = async (apptId) => {
+    setActionLoading(prev => ({ ...prev, [apptId]: 'confirm' }))
     try {
       await api.put(`/doctor/appointments/${apptId}/confirm`)
       toast.success('Appointment confirmed')
       fetchAppointments()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to confirm appointment')
+    } finally {
+      setActionLoading(prev => ({ ...prev, [apptId]: null }))
     }
+  }
+
+  const handleCompleteClick = (appt) => {
+    setSelectedAppt(appt)
   }
 
   const filteredAppointments = statusFilter === 'all'
@@ -138,7 +153,16 @@ const DoctorAppointments = () => {
   }
 
   const upcomingAppointments = dateFilteredAppointments.filter(a => a.status === 'confirmed' || a.status === 'pending')
-  const pastAppointments = dateFilteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled')
+  const pastAppointments = dateFilteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled').sort((a, b) => {
+    // Sort past appointments by date descending (latest first)
+    const dateA = new Date(a.slot.date);
+    const dateB = new Date(b.slot.date);
+    if (dateA.getTime() !== dateB.getTime()) {
+      return dateB.getTime() - dateA.getTime();
+    }
+    // If same date, sort by time descending
+    return b.slot.startTime.localeCompare(a.slot.startTime);
+  })
 
   return (
     <div className="space-y-6 animate-fade-in pb-24 md:pb-10 max-w-7xl mx-auto">
@@ -230,27 +254,30 @@ const DoctorAppointments = () => {
                       {appt.status === 'pending' && (
                         <button
                           onClick={() => confirmAppointment(appt._id)}
-                          className="mt-2 text-xs font-bold text-primary flex items-center gap-1"
+                          disabled={actionLoading[appt._id] === 'confirm'}
+                          className="mt-2 text-xs font-bold text-primary flex items-center gap-1 disabled:opacity-50"
                         >
-                          <span className="material-symbols-outlined text-sm">check_circle</span>
+                          {actionLoading[appt._id] === 'confirm' ? (
+                            <span className="material-symbols-outlined text-sm animate-spin">refresh</span>
+                          ) : (
+                            <span className="material-symbols-outlined text-sm">check_circle</span>
+                          )}
                           Confirm
                         </button>
                       )}
                       {appt.status === 'confirmed' && (
                         <div className="mt-2 flex items-center gap-2">
                           <button
-                            onClick={() => setSelectedAppt(appt)}
-                            className="text-xs font-bold text-primary flex items-center gap-1"
+                            onClick={() => handleCompleteClick(appt)}
+                            disabled={actionLoading[appt._id] === 'complete'}
+                            className="text-xs font-bold text-emerald-600 flex items-center gap-1 disabled:opacity-50"
                           >
-                            <span className="material-symbols-outlined text-sm">description</span>
-                            Add Prescription
-                          </button>
-                          <button
-                            onClick={() => completeAppointment(appt._id)}
-                            className="text-xs font-bold text-emerald-600 flex items-center gap-1"
-                          >
-                            <span className="material-symbols-outlined text-sm">check_circle</span>
-                            Complete
+                            {actionLoading[appt._id] === 'complete' ? (
+                              <span className="material-symbols-outlined text-sm animate-spin">refresh</span>
+                            ) : (
+                              <span className="material-symbols-outlined text-sm">check_circle</span>
+                            )}
+                            Complete Appointment
                           </button>
                         </div>
                       )}
@@ -278,7 +305,7 @@ const DoctorAppointments = () => {
                           <h3 className="text-sm font-bold text-on-surface truncate">{appt.user?.name}</h3>
                           {getStatusBadge(appt.status)}
                         </div>
-                        <p className="text-xs text-on-surface-variant">{appt.status}</p>
+                        <p className="text-xs text-on-surface-variant">{appt.slot.startTime} - {appt.slot.endTime}</p>
                       </div>
                     </div>
                   ))}
@@ -337,27 +364,30 @@ const DoctorAppointments = () => {
                             {appt.status === 'pending' && (
                               <button
                                 onClick={() => confirmAppointment(appt._id)}
-                                className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-colors flex items-center gap-1"
+                                disabled={actionLoading[appt._id] === 'confirm'}
+                                className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-colors flex items-center gap-1 disabled:opacity-50"
                               >
-                                <span className="material-symbols-outlined text-sm">check_circle</span>
+                                {actionLoading[appt._id] === 'confirm' ? (
+                                  <span className="material-symbols-outlined text-sm animate-spin">refresh</span>
+                                ) : (
+                                  <span className="material-symbols-outlined text-sm">check_circle</span>
+                                )}
                                 Confirm
                               </button>
                             )}
                             {appt.status === 'confirmed' && (
                               <div className="flex items-center gap-2">
                                 <button
-                                  onClick={() => setSelectedAppt(appt)}
-                                  className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-colors flex items-center gap-1"
+                                  onClick={() => handleCompleteClick(appt)}
+                                  disabled={actionLoading[appt._id] === 'complete'}
+                                  className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1 disabled:opacity-50"
                                 >
-                                  <span className="material-symbols-outlined text-sm">description</span>
-                                  Prescription
-                                </button>
-                                <button
-                                  onClick={() => completeAppointment(appt._id)}
-                                  className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1"
-                                >
-                                  <span className="material-symbols-outlined text-sm">check_circle</span>
-                                  Complete
+                                  {actionLoading[appt._id] === 'complete' ? (
+                                    <span className="material-symbols-outlined text-sm animate-spin">refresh</span>
+                                  ) : (
+                                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                                  )}
+                                  Complete Appointment
                                 </button>
                               </div>
                             )}
@@ -391,7 +421,7 @@ const DoctorAppointments = () => {
                           <div className="flex items-start justify-between">
                             <div>
                               <h3 className="text-lg font-bold text-on-surface">{appt.user?.name}</h3>
-                              <p className="text-sm text-on-surface-variant">Consultation • {appt.status}</p>
+                              <p className="text-sm text-on-surface-variant">Consultation • {appt.slot.startTime} - {appt.slot.endTime}</p>
                             </div>
                             {getStatusBadge(appt.status)}
                           </div>
@@ -466,7 +496,7 @@ const DoctorAppointments = () => {
                   <div className="h-[1px] bg-white/10"></div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Completion Rate</span>
-                    <span className="text-lg font-black">{appointments.length > 0 ? Math.round((pastAppointments.filter(a => a.status === 'completed').length / appointments.length) * 100) : 0}%</span>
+                    <span className="text-lg font-black">{appointments.filter(a => a.status !== 'cancelled').length > 0 ? Math.round((pastAppointments.filter(a => a.status === 'completed').length / appointments.filter(a => a.status !== 'cancelled').length) * 100) : 0}%</span>
                   </div>
                 </div>
               </div>
@@ -545,7 +575,7 @@ const DoctorAppointments = () => {
                   Cancel
                 </button>
                 <button onClick={submitPrescription} disabled={saving} className="flex-1 bg-primary text-on-primary px-6 py-3 rounded-xl font-bold hover:bg-primary-container transition-all shadow-md shadow-primary/10 disabled:opacity-50">
-                  {saving ? 'Saving...' : 'Save Prescription'}
+                  {saving ? 'Completing...' : 'Complete Appointment'}
                 </button>
               </div>
             </div>

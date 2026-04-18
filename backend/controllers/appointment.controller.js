@@ -1,13 +1,14 @@
 const Appointment = require("../models/Appointment.model");
 const Doctor = require("../models/Doctor.model");
 const { createNotification } = require("../utils/notificationScheduler");
+const { publishEvent, EventTypes } = require("../utils/eventBus");
 
 exports.getAllAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find()
       .populate("user", "name email")
       .populate({ path: "doctor", populate: { path: "user", select: "name" } })
-      .sort({ createdAt: -1 });
+      .sort({ "slot.date": 1, "slot.startTime": 1 });
     res.json(appointments);
   } catch (err) {
     res.status(500).json({ message: err.message });

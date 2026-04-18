@@ -27,6 +27,7 @@ A full-stack doctor appointment booking system with role-based access, real-time
 | Frontend | React 19, Vite, Tailwind CSS, Lucide Icons |
 | Backend | Node.js, Express.js |
 | Database | MongoDB with Mongoose ODM |
+| Caching & Events | Redis (Pub/Sub for events, Caching for performance) |
 | Authentication | JWT (JSON Web Tokens) |
 | File Upload | Multer |
 | Validation | Custom validation middleware |
@@ -40,7 +41,41 @@ A full-stack doctor appointment booking system with role-based access, real-time
 ### Prerequisites
 - Node.js 16+
 - MongoDB (local or MongoDB Atlas)
+- Redis (local or Redis Cloud)
 - npm or yarn
+
+### Installing Redis
+
+#### Option 1: Install Redis Locally
+
+**Windows:**
+```bash
+# Using Chocolatey
+choco install redis-64
+
+# Or download from https://github.com/microsoftarchive/redis/releases
+```
+
+**macOS:**
+```bash
+# Using Homebrew
+brew install redis
+brew services start redis
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install redis-server
+sudo systemctl start redis
+sudo systemctl enable redis
+```
+
+#### Option 2: Use Redis Cloud (Recommended for Production)
+1. Go to [Redis Cloud](https://redis.com/try-free/)
+2. Create a free account
+3. Create a new database
+4. Copy the connection URL
 
 ### Backend
 ```bash
@@ -54,6 +89,17 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/docbook
 JWT_SECRET=your_jwt_secret
 NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+
+# Redis Configuration
+# Option 1: Use individual host/port (for local Redis)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# Option 2: Use Redis URL (for Redis Cloud or remote Redis)
+# REDIS_URL=redis://localhost:6379
+# REDIS_URL=redis://:password@host:port
 ```
 
 Run the server:
@@ -151,6 +197,9 @@ Frontend will run on `http://localhost:5173`
 | user | ObjectId | Reference to User |
 | specialization | String | Doctor's specialization |
 | fee | Number | Consultation fee |
+| virtualFee | Number | Virtual consultation fee |
+| inPersonFee | Number | In-person consultation fee |
+| maxAppointmentsPerDay | Number | Maximum appointments per day (default: 10) |
 | experience | Number | Years of experience |
 | qualification | String | Medical qualification |
 | isApproved | String | `pending`, `approved`, or `rejected` |
@@ -223,10 +272,17 @@ doctor-appointment-system/
 │   │   ├── doctor.routes.js
 │   │   └── user.routes.js
 │   ├── utils/
+│   │   ├── cache.js
 │   │   ├── emailService.js
+│   │   ├── eventBus.js
 │   │   ├── feeCalculator.js
 │   │   └── notificationScheduler.js
+│   ├── services/
+│   │   └── notificationService.js
+│   ├── config/
+│   │   └── redis.js
 │   ├── .env
+│   ├── .env.example
 │   ├── package.json
 │   └── server.js
 ├── frontend/
@@ -299,6 +355,15 @@ doctor-appointment-system/
 
 ---
 
+## ⚡ Performance Features
+
+- **Redis Caching** - Doctor profiles, slots, and dashboard stats cached for faster response times
+- **Event-Driven Architecture** - Async notifications using Redis Pub/Sub
+- **Database Indexing** - Optimized queries for frequently accessed data
+- **Rate Limiting** - Prevents API abuse and DDoS attacks
+
+---
+
 ## 📝 Notes
 
 - The admin account needs to be created manually in the database with role "admin"
@@ -306,5 +371,7 @@ doctor-appointment-system/
 - Commission is calculated based on the commission rate in settings
 - Auto-rescheduling is available when a doctor's slot is removed
 - Email notifications can be configured via the email service
+- Redis is required for the event-driven notification system and caching
+- If Redis is not available, the system will log errors but continue to function (with degraded performance)
 
 ---

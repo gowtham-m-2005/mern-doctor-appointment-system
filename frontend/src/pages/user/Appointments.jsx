@@ -150,7 +150,16 @@ const Appointments = () => {
   }
 
   const upcomingAppointments = dateFilteredAppointments.filter(a => a.status === 'confirmed' || a.status === 'pending')
-  const pastAppointments = dateFilteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled')
+  const pastAppointments = dateFilteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled').sort((a, b) => {
+    // Sort past appointments by date descending (latest first)
+    const dateA = new Date(a.slot.date);
+    const dateB = new Date(b.slot.date);
+    if (dateA.getTime() !== dateB.getTime()) {
+      return dateB.getTime() - dateA.getTime();
+    }
+    // If same date, sort by time descending
+    return b.slot.startTime.localeCompare(a.slot.startTime);
+  })
 
   return (
     <div className="space-y-6 animate-fade-in pb-24 md:pb-10 max-w-7xl mx-auto">

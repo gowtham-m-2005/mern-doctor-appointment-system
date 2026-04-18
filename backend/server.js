@@ -9,6 +9,9 @@ const { apiLimiter, loginLimiter, registerLimiter } = require("./middleware/rate
 const sanitizeInput = require("./middleware/xss.middleware");
 const { logRequest } = require("./middleware/securityLogger.middleware");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler.middleware");
+const { redisClient } = require("./config/redis");
+const { initializeNotificationService } = require("./services/notificationService");
+const { cleanupExpiredSlots } = require("./jobs/cleanupExpiredSlots");
 
 dotenv.config();
 
@@ -77,11 +80,22 @@ app.use(errorHandler);
 // Connect DB then start server
 mongoose
     .connect(process.env.MONGO_URI)
-    .then(() => {
+    .then(async () => {
         console.log("MongoDB connected");
+
+        // Connect to Redis
+        await redisClient.connect();
+        console.log("Redis connected");
+
+        // Initialize notification service
+        initializeNotificationService();
 
         // Start notification scheduler after DB is ready
         require("./utils/notificationScheduler");
+
+        // Run expired slots cleanup on startup and every hour
+        cleanupExpiredSlots();
+        setInterval(cleanupExpiredSlots, 60 * 60 * 1000);
 
         app.listen(process.env.PORT, () =>
             console.log(`Server running on port ${process.env.PORT}`)

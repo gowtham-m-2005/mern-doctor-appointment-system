@@ -2,12 +2,26 @@ const Doctor = require("../models/Doctor.model");
 const Appointment = require("../models/Appointment.model");
 const User = require("../models/User.model");
 const { createNotification } = require("../utils/notificationScheduler");
+const { getCache, setCache, deleteCache, CacheTTL, CacheKeys } = require("../utils/cache");
+const { publishEvent, EventTypes } = require("../utils/eventBus");
 
 exports.getMyProfile = async (req, res) => {
   try {
-    const doctor = await Doctor.findOne({ user: req.user._id }).populate("user", "-password");
+    // Check cache first
+    const doctor = await Doctor.findOne({ user: req.user._id });
     if (!doctor) return res.status(404).json({ message: "Doctor profile not found" });
-    res.json(doctor);
+    
+    const cached = await getCache(CacheKeys.doctorProfile(doctor._id));
+    if (cached) {
+      return res.json(cached);
+    }
+    
+    const populatedDoctor = await doctor.populate("user", "-password");
+    
+    // Cache the doctor profile
+    await setCache(CacheKeys.doctorProfile(doctor._id), populatedDoctor, CacheTTL.DOCTOR_PROFILE);
+    
+    res.json(populatedDoctor);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -60,6 +74,16 @@ exports.updateProfile = async (req, res) => {
     if (!updatedDoctor) {
       return res.status(404).json({ message: "Doctor profile not found" });
     }
+    
+    // Invalidate cache
+    await deleteCache(CacheKeys.doctorProfile(updatedDoctor._id));
+    
+    // Emit event
+    await publishEvent(EventTypes.DOCTOR_PROFILE_UPDATED, {
+      doctorId: updatedDoctor._id,
+      updates
+    });
+    
     res.json(updatedDoctor);
   } catch (err) {
     console.error("Update profile error:", err);
@@ -76,6 +100,10 @@ exports.addSlots = async (req, res) => {
     if (!slots || !Array.isArray(slots) || slots.length === 0) {
       return res.status(400).json({ message: "Slots array is required" });
     }
+
+    // Invalidate cache to ensure we work with fresh data
+    await deleteCache(CacheKeys.doctorProfile(doctor._id));
+    await deleteCache(CacheKeys.doctorSlots(doctor._id));
 
     const today = new Date().toISOString().split('T')[0];
     const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
@@ -99,8 +127,9 @@ exports.addSlots = async (req, res) => {
 
       // Check for past dates
       if (slot.date < today) {
+        const formattedDate = new Date(slot.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         return res.status(400).json({ 
-          message: `Cannot add slots for past dates. ${slot.date} is in the past.` 
+          message: `Cannot add slots for past dates. ${formattedDate} is in the past.` 
         });
       }
 
@@ -124,8 +153,9 @@ exports.addSlots = async (req, res) => {
          (slot.startTime <= s.startTime && slot.endTime >= s.endTime))
       );
       if (hasOverlap) {
+        const formattedDate = new Date(slot.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         return res.status(400).json({ 
-          message: `Time slot overlaps with an existing slot on ${slot.date}.` 
+          message: `Time slot overlaps with an existing slot on ${formattedDate}.` 
         });
       }
     }
@@ -146,14 +176,26 @@ exports.addSlots = async (req, res) => {
       const totalSlots = existingSlots + newSlots;
 
       if (totalSlots > doctor.maxAppointmentsPerDay) {
+        const formattedDate = new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         return res.status(400).json({ 
-          message: `Cannot add ${newSlots} slot(s) for ${date}. Maximum appointments per day is ${doctor.maxAppointmentsPerDay}. You already have ${existingSlots} slot(s).` 
+          message: `Cannot add ${newSlots} slot(s) for ${formattedDate}. Maximum appointments per day is ${doctor.maxAppointmentsPerDay}. You already have ${existingSlots} slot(s).` 
         });
       }
     }
 
     doctor.availableSlots.push(...slots);
     await doctor.save();
+    
+    // Invalidate both profile and slots cache
+    await deleteCache(CacheKeys.doctorProfile(doctor._id));
+    await deleteCache(CacheKeys.doctorSlots(doctor._id));
+    
+    // Emit event
+    await publishEvent(EventTypes.SLOT_CREATED, {
+      doctorId: doctor._id,
+      slots
+    });
+    
     res.json(doctor.availableSlots);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -166,6 +208,17 @@ exports.removeSlot = async (req, res) => {
     const doctor = await Doctor.findOne({ user: req.user._id });
     doctor.availableSlots = doctor.availableSlots.filter((s) => s._id.toString() !== slotId);
     await doctor.save();
+    
+    // Invalidate both profile and slots cache
+    await deleteCache(CacheKeys.doctorProfile(doctor._id));
+    await deleteCache(CacheKeys.doctorSlots(doctor._id));
+    
+    // Emit event
+    await publishEvent(EventTypes.SLOT_REMOVED, {
+      doctorId: doctor._id,
+      slotId
+    });
+    
     res.json({ message: "Slot removed" });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -177,7 +230,7 @@ exports.getMyAppointments = async (req, res) => {
     const doctor = await Doctor.findOne({ user: req.user._id });
     const appointments = await Appointment.find({ doctor: doctor._id })
       .populate("user", "name email phone")
-      .sort({ createdAt: -1 });
+      .sort({ "slot.date": 1, "slot.startTime": 1 });
     res.json(appointments);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -203,6 +256,12 @@ exports.addPrescription = async (req, res) => {
 
 exports.getDashboardStats = async (req, res) => {
   try {
+    // Check cache first
+    const cached = await getCache(CacheKeys.dashboardStats(req.user._id));
+    if (cached) {
+      return res.json(cached);
+    }
+
     const doctor = await Doctor.findOne({ user: req.user._id });
     const appointments = await Appointment.find({ doctor: doctor._id });
     const today = new Date().toISOString().split("T")[0];
@@ -249,7 +308,12 @@ exports.getDashboardStats = async (req, res) => {
       ? (((currentMonthCount - lastMonthCount) / lastMonthCount) * 100).toFixed(1)
       : currentMonthCount > 0 ? 100 : 0;
 
-    res.json({ total: appointments.length, today: uniquePatientsToday, todayPending, completed, todayCompleted, totalEarnings, pendingEarnings, growthPercent });
+    const stats = { total: appointments.length, today: uniquePatientsToday, todayPending, completed, todayCompleted, totalEarnings, pendingEarnings, growthPercent };
+    
+    // Cache dashboard stats
+    await setCache(CacheKeys.dashboardStats(req.user._id), stats, CacheTTL.DASHBOARD_STATS);
+    
+    res.json(stats);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -271,6 +335,13 @@ exports.completeAppointment = async (req, res) => {
 
     if (appt.status !== "confirmed") {
       return res.status(400).json({ message: "Only confirmed appointments can be completed" });
+    }
+
+    // Prevent completing future appointments
+    const today = new Date().toISOString().split("T")[0];
+    const appointmentDate = new Date(appt.slot.date).toISOString().split("T")[0];
+    if (appointmentDate > today) {
+      return res.status(400).json({ message: "Cannot complete a future appointment" });
     }
 
     if (!appt.prescription || !appt.prescription.medicines || appt.prescription.medicines.length === 0) {
@@ -296,7 +367,7 @@ exports.completeAppointment = async (req, res) => {
 
 exports.confirmAppointment = async (req, res) => {
   try {
-    const doctor = await Doctor.findOne({ user: req.user._id });
+    const doctor = await Doctor.findOne({ user: req.user._id }).populate("user", "name");
     const appt = await Appointment.findOne({ _id: req.params.id, doctor: doctor._id });
     if (!appt) return res.status(404).json({ message: "Appointment not found" });
 
@@ -317,6 +388,13 @@ exports.confirmAppointment = async (req, res) => {
 
     appt.status = "confirmed";
     await appt.save();
+
+    // Emit event with populated doctor
+    await publishEvent(EventTypes.APPOINTMENT_CONFIRMED, {
+      appointmentId: appt._id,
+      doctor: doctor,
+      appointment: appt
+    });
 
     // Notify patient that appointment is confirmed
     const formattedDate = new Date(appt.slot.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
