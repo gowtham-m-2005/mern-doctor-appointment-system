@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import api from '../../api/axios'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 // Generate time options in 30-min intervals from 8:00 AM to 8:00 PM
 const generateTimeOptions = () => {
@@ -60,10 +61,11 @@ const DoctorSlots = () => {
       await api.post('/doctor/slots', { slots: validSlots })
       setNewSlots([{ date: '', startTime: '', endTime: '' }])
       await fetchSlots()
-      setMessage('Slots added successfully')
-      setTimeout(() => setMessage(''), 3000)
+      toast.success('Slots added successfully')
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Failed to add slots')
+      const errorMessage = err.response?.data?.message || 'Failed to add slots'
+      toast.error(errorMessage)
+      setMessage(errorMessage)
     } finally {
       setSaving(false)
     }
@@ -73,7 +75,9 @@ const DoctorSlots = () => {
     try {
       await api.delete(`/doctor/slots/${slotId}`)
       fetchSlots()
+      toast.success('Slot removed successfully')
     } catch (err) {
+      toast.error('Failed to remove slot')
       console.error(err)
     }
   }
@@ -129,39 +133,41 @@ const DoctorSlots = () => {
         <h2 className="text-xl font-bold text-on-surface mb-6">Add Available Slots</h2>
         <form onSubmit={addSlots} className="space-y-4">
           {newSlots.map((slot, idx) => (
-            <div key={idx} className="flex flex-wrap items-center gap-3 bg-surface-container-lowest p-4 rounded-2xl">
+            <div key={idx} className="flex flex-col md:flex-row md:items-center gap-3 bg-surface-container-lowest p-4 rounded-2xl">
               <input
                 type="date"
-                className="flex-1 min-w-[150px] px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
+                className="w-full md:flex-1 min-w-[150px] px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
                 value={slot.date}
                 onChange={(e) => updateSlot(idx, 'date', e.target.value)}
                 required
               />
-              <select
-                className="w-36 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
-                value={slot.startTime}
-                onChange={(e) => updateSlot(idx, 'startTime', e.target.value)}
-                required
-              >
-                <option value="">Start Time</option>
-                {TIME_OPTIONS.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
-              <span className="text-on-surface-variant">-</span>
-              <select
-                className="w-36 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
-                value={slot.endTime}
-                onChange={(e) => updateSlot(idx, 'endTime', e.target.value)}
-                required
-              >
-                <option value="">End Time</option>
-                {TIME_OPTIONS.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <select
+                  className="flex-1 md:w-36 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
+                  value={slot.startTime}
+                  onChange={(e) => updateSlot(idx, 'startTime', e.target.value)}
+                  required
+                >
+                  <option value="">Start Time</option>
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+                <span className="text-on-surface-variant hidden md:block">-</span>
+                <select
+                  className="flex-1 md:w-36 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
+                  value={slot.endTime}
+                  onChange={(e) => updateSlot(idx, 'endTime', e.target.value)}
+                  required
+                >
+                  <option value="">End Time</option>
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
               {newSlots.length > 1 && (
-                <button type="button" onClick={() => removeSlotRow(idx)} className="p-3 text-error hover:bg-error-container rounded-xl transition-colors">
+                <button type="button" onClick={() => removeSlotRow(idx)} className="p-3 text-error hover:bg-error-container rounded-xl transition-colors w-full md:w-auto">
                   <span className="material-symbols-outlined">delete</span>
                 </button>
               )}

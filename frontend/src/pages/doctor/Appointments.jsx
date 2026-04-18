@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { Filter } from 'lucide-react'
+import { toast } from 'react-toastify'
 import api from '../../api/axios'
 
 const STATUS_FILTERS = ['all', 'confirmed', 'completed', 'cancelled', 'pending']
 
 const DoctorAppointments = () => {
   const location = useLocation()
+  const scrollRef = useRef(null)
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
@@ -27,12 +29,16 @@ const DoctorAppointments = () => {
 
   useEffect(() => {
     if (highlightAppointmentId && !loading) {
-      setTimeout(() => {
+      const scrollToElement = (retries = 3) => {
         const element = document.querySelector(`[data-appointment-id="${highlightAppointmentId}"]`)
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else if (retries > 0) {
+          setTimeout(() => scrollToElement(retries - 1), 200)
         }
-      }, 100)
+      }
+      const scrollTimeout = setTimeout(() => scrollToElement(), 500)
+      return () => clearTimeout(scrollTimeout)
     }
   }, [highlightAppointmentId, loading])
 
@@ -87,22 +93,22 @@ const DoctorAppointments = () => {
   }
 
   const completeAppointment = async (apptId) => {
-    if (!confirm('Mark this appointment as completed?')) return
     try {
       await api.put(`/doctor/appointments/${apptId}/complete`)
+      toast.success('Appointment marked as completed')
       fetchAppointments()
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to complete appointment')
+      toast.error(err.response?.data?.message || 'Failed to complete appointment')
     }
   }
 
   const confirmAppointment = async (apptId) => {
-    if (!confirm('Confirm this appointment?')) return
     try {
       await api.put(`/doctor/appointments/${apptId}/confirm`)
+      toast.success('Appointment confirmed')
       fetchAppointments()
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to confirm appointment')
+      toast.error(err.response?.data?.message || 'Failed to confirm appointment')
     }
   }
 
@@ -231,13 +237,22 @@ const DoctorAppointments = () => {
                         </button>
                       )}
                       {appt.status === 'confirmed' && (
-                        <button
-                          onClick={() => completeAppointment(appt._id)}
-                          className="mt-2 text-xs font-bold text-emerald-600 flex items-center gap-1"
-                        >
-                          <span className="material-symbols-outlined text-sm">check_circle</span>
-                          Complete
-                        </button>
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            onClick={() => setSelectedAppt(appt)}
+                            className="text-xs font-bold text-primary flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-sm">description</span>
+                            Add Prescription
+                          </button>
+                          <button
+                            onClick={() => completeAppointment(appt._id)}
+                            className="text-xs font-bold text-emerald-600 flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-sm">check_circle</span>
+                            Complete
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -329,13 +344,22 @@ const DoctorAppointments = () => {
                               </button>
                             )}
                             {appt.status === 'confirmed' && (
-                              <button
-                                onClick={() => completeAppointment(appt._id)}
-                                className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1"
-                              >
-                                <span className="material-symbols-outlined text-sm">check_circle</span>
-                                Complete
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => setSelectedAppt(appt)}
+                                  className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-colors flex items-center gap-1"
+                                >
+                                  <span className="material-symbols-outlined text-sm">description</span>
+                                  Prescription
+                                </button>
+                                <button
+                                  onClick={() => completeAppointment(appt._id)}
+                                  className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors flex items-center gap-1"
+                                >
+                                  <span className="material-symbols-outlined text-sm">check_circle</span>
+                                  Complete
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -379,13 +403,10 @@ const DoctorAppointments = () => {
                                   Prescription added
                                 </span>
                               ) : (
-                                <button
-                                  onClick={() => setSelectedAppt(appt)}
-                                  className="text-primary text-xs font-bold flex items-center gap-1 hover:underline"
-                                >
-                                  <span className="material-symbols-outlined text-sm">description</span>
-                                  Add Prescription
-                                </button>
+                                <span className="text-error text-xs font-bold flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-sm">error</span>
+                                  No prescription
+                                </span>
                               )}
                             </div>
                           )}

@@ -37,6 +37,9 @@ const DoctorProfile = () => {
         qualification: profile.qualification,
         experience: Number(profile.experience),
         fee: Number(profile.fee),
+        virtualFee: Number(profile.virtualFee) || Number(profile.fee),
+        inPersonFee: Number(profile.inPersonFee) || Math.round(Number(profile.fee) * 1.5),
+        maxAppointmentsPerDay: Number(profile.maxAppointmentsPerDay) || 10,
         bio: profile.bio,
         address: profile.address,
       })
@@ -49,7 +52,12 @@ const DoctorProfile = () => {
     }
   }
 
-  if (loading) return <div className="space-y-4 animate-pulse"><div className="bg-surface-container-lowest h-64 rounded-3xl" /><div className="bg-surface-container-lowest h-48 rounded-3xl" /></div>
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-on-surface-variant mt-4">Loading profile...</p>
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-fade-in pb-24 md:pb-10 max-w-7xl mx-auto">
@@ -107,16 +115,16 @@ const DoctorProfile = () => {
               <div className="mt-4 space-y-4">
                 <div className="flex justify-between items-end">
                   <span className="text-sm">Standard Virtual</span>
-                  <span className="text-3xl font-bold">${profile?.fee || 120}</span>
+                  <span className="text-3xl font-bold">₹{profile?.virtualFee || profile?.fee || 100}</span>
                 </div>
                 <div className="flex justify-between items-end">
                   <span className="text-sm">In-Person Clinic</span>
-                  <span className="text-3xl font-bold">${Math.round((profile?.fee || 120) * 1.5)}</span>
+                  <span className="text-3xl font-bold">₹{profile?.inPersonFee || (profile?.fee ? Math.round(profile.fee * 1.5) : 150)}</span>
                 </div>
               </div>
             </div>
             <button 
-              onClick={() => document.getElementById('fee-input')?.focus()}
+              onClick={() => document.getElementById('virtual-fee-input')?.focus()}
               className="mt-8 w-full bg-on-primary text-primary font-bold py-4 rounded-xl active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined">edit</span> Edit Rates
@@ -165,13 +173,25 @@ const DoctorProfile = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-on-surface mb-2">Consultation Fee ($)</label>
+            <label className="block text-sm font-medium text-on-surface mb-2">Virtual Consultation Fee (₹)</label>
             <input
-              id="fee-input"
+              id="virtual-fee-input"
               type="number"
               className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
-              value={profile?.fee || ''}
-              onChange={(e) => setProfile({ ...profile, fee: e.target.value })}
+              value={profile?.virtualFee || profile?.fee || ''}
+              onChange={(e) => setProfile({ ...profile, virtualFee: e.target.value, fee: e.target.value })}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-on-surface mb-2">In-Person Clinic Fee (₹)</label>
+            <input
+              id="inperson-fee-input"
+              type="number"
+              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+              value={profile?.inPersonFee || (profile?.fee ? Math.round(profile.fee * 1.5) : '')}
+              onChange={(e) => setProfile({ ...profile, inPersonFee: e.target.value })}
               required
             />
           </div>
@@ -184,6 +204,20 @@ const DoctorProfile = () => {
               value={profile?.address || ''}
               onChange={(e) => setProfile({ ...profile, address: e.target.value })}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-on-surface mb-2">Max Appointments Per Day</label>
+            <input
+              type="number"
+              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+              value={profile?.maxAppointmentsPerDay || 10}
+              onChange={(e) => setProfile({ ...profile, maxAppointmentsPerDay: e.target.value })}
+              min="1"
+              max="50"
+              required
+            />
+            <p className="text-xs text-on-surface-variant mt-1">Maximum number of appointments you can accept per day (1-50)</p>
           </div>
 
           <div>

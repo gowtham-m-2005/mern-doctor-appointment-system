@@ -23,7 +23,9 @@ const AdminDashboard = () => {
       setStats(statsRes.data)
       // Handle both array (old) and paginated (new) responses
       const appointments = Array.isArray(apptsRes.data) ? apptsRes.data : (apptsRes.data.appointments || [])
-      setRecentAppointments(appointments.slice(0, 5))
+      // Show only confirmed/completed appointments in recent list to match revenue calculation
+      const completedAppointments = appointments.filter(a => a.status === 'confirmed' || a.status === 'completed')
+      setRecentAppointments(completedAppointments.slice(0, 5))
     } catch (err) {
       console.error(err)
     } finally {
@@ -89,7 +91,7 @@ const AdminDashboard = () => {
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">payments</span>
             </div>
-            <p className="text-2xl font-extrabold font-headline text-on-surface">${stats.totalRevenue?.toFixed(2)}</p>
+            <p className="text-2xl font-extrabold font-headline text-on-surface">₹{stats.totalRevenue?.toFixed(2)}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Revenue</p>
           </div>
         </div>
@@ -145,7 +147,7 @@ const AdminDashboard = () => {
             <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">Revenue</span>
           </div>
           <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Revenue</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">${stats.totalRevenue?.toFixed(2)}</h3>
+          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">₹{stats.totalRevenue?.toFixed(2)}</h3>
           <p className="text-[11px] text-on-surface-variant mt-2">Platform earnings</p>
         </div>
       </section>
@@ -223,7 +225,7 @@ const AdminDashboard = () => {
                         {appt.slot.date} {appt.slot.startTime}
                       </div>
                     </td>
-                    <td className="py-4 font-bold text-on-surface">${appt.totalFee}</td>
+                    <td className="py-4 font-bold text-on-surface">₹{appt.totalFee}</td>
                     <td className="py-3">
                       {getStatusBadge(appt.status)}
                     </td>

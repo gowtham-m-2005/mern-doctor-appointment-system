@@ -21,15 +21,46 @@ exports.updateProfile = async (req, res) => {
     if (req.file) updates.certificate = `/uploads/${req.file.filename}`;
 
     // Validate required fields
-    if (!updates.specialization || !updates.qualification || updates.experience === undefined || updates.fee === undefined) {
-      return res.status(400).json({ message: "Missing required fields: specialization, qualification, experience, fee" });
+    if (!updates.specialization || !updates.qualification || updates.experience === undefined) {
+      return res.status(400).json({ message: "Missing required fields: specialization, qualification, experience" });
     }
 
-    const doctor = await Doctor.findOneAndUpdate({ user: req.user._id }, updates, { new: true });
-    if (!doctor) {
+    // Handle fee fields - if virtualFee or inPersonFee not provided, use fee as fallback
+    if (updates.virtualFee === undefined || updates.virtualFee === null) {
+      updates.virtualFee = updates.fee || 100;
+    }
+    if (updates.inPersonFee === undefined || updates.inPersonFee === null) {
+      updates.inPersonFee = updates.fee ? Math.round(updates.fee * 1.5) : 150;
+    }
+
+    // Handle maxAppointmentsPerDay with validation
+    if (updates.maxAppointmentsPerDay !== undefined && updates.maxAppointmentsPerDay !== null) {
+      updates.maxAppointmentsPerDay = Number(updates.maxAppointmentsPerDay);
+      // Validate range
+      if (updates.maxAppointmentsPerDay < 1 || updates.maxAppointmentsPerDay > 50) {
+        return res.status(400).json({ message: "Max appointments per day must be between 1 and 50" });
+      }
+      // Check if new limit is below existing booked appointments
+      const doctor = await Doctor.findOne({ user: req.user._id });
+      const today = new Date().toISOString().split('T')[0];
+      const futureBookedSlots = doctor.availableSlots.filter(s => 
+        s.date >= today && s.isBooked
+      ).length;
+      
+      if (updates.maxAppointmentsPerDay < futureBookedSlots) {
+        return res.status(400).json({ 
+          message: `Cannot set max appointments to ${updates.maxAppointmentsPerDay}. You already have ${futureBookedSlots} booked appointment(s) for upcoming days.` 
+        });
+      }
+    } else {
+      updates.maxAppointmentsPerDay = 10;
+    }
+
+    const updatedDoctor = await Doctor.findOneAndUpdate({ user: req.user._id }, updates, { new: true });
+    if (!updatedDoctor) {
       return res.status(404).json({ message: "Doctor profile not found" });
     }
-    res.json(doctor);
+    res.json(updatedDoctor);
   } catch (err) {
     console.error("Update profile error:", err);
     res.status(500).json({ message: err.message });
@@ -41,6 +72,85 @@ exports.addSlots = async (req, res) => {
     const { slots } = req.body;
     const doctor = await Doctor.findOne({ user: req.user._id });
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    if (!slots || !Array.isArray(slots) || slots.length === 0) {
+      return res.status(400).json({ message: "Slots array is required" });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
+    // Validate each slot and check for duplicates/overlaps/past dates
+    for (const slot of slots) {
+      // Validate required fields
+      if (!slot.date || !slot.startTime || !slot.endTime) {
+        return res.status(400).json({ message: "Each slot must have date, startTime, and endTime" });
+      }
+
+      // Validate time format
+      if (!timeRegex.test(slot.startTime) || !timeRegex.test(slot.endTime)) {
+        return res.status(400).json({ message: "Invalid time format. Use HH:MM format" });
+      }
+
+      // Validate that end time is after start time
+      if (slot.startTime >= slot.endTime) {
+        return res.status(400).json({ message: "End time must be after start time" });
+      }
+
+      // Check for past dates
+      if (slot.date < today) {
+        return res.status(400).json({ 
+          message: `Cannot add slots for past dates. ${slot.date} is in the past.` 
+        });
+      }
+
+      // Check for duplicate time slots on the same date
+      const isDuplicate = doctor.availableSlots.some(s => 
+        s.date === slot.date && 
+        s.startTime === slot.startTime && 
+        s.endTime === slot.endTime
+      );
+      if (isDuplicate) {
+        return res.status(400).json({ 
+          message: `A slot already exists for ${slot.date} from ${slot.startTime} to ${slot.endTime}.` 
+        });
+      }
+
+      // Check for overlapping time slots on the same date
+      const hasOverlap = doctor.availableSlots.some(s => 
+        s.date === slot.date && 
+        ((slot.startTime >= s.startTime && slot.startTime < s.endTime) ||
+         (slot.endTime > s.startTime && slot.endTime <= s.endTime) ||
+         (slot.startTime <= s.startTime && slot.endTime >= s.endTime))
+      );
+      if (hasOverlap) {
+        return res.status(400).json({ 
+          message: `Time slot overlaps with an existing slot on ${slot.date}.` 
+        });
+      }
+    }
+
+    // Group slots by date and check against maxAppointmentsPerDay limit
+    const slotsByDate = {};
+    slots.forEach(slot => {
+      if (!slotsByDate[slot.date]) {
+        slotsByDate[slot.date] = 0;
+      }
+      slotsByDate[slot.date]++;
+    });
+
+    // Check each date against existing slots (both booked and unbooked) + new slots
+    for (const date in slotsByDate) {
+      const existingSlots = doctor.availableSlots.filter(s => s.date === date).length;
+      const newSlots = slotsByDate[date];
+      const totalSlots = existingSlots + newSlots;
+
+      if (totalSlots > doctor.maxAppointmentsPerDay) {
+        return res.status(400).json({ 
+          message: `Cannot add ${newSlots} slot(s) for ${date}. Maximum appointments per day is ${doctor.maxAppointmentsPerDay}. You already have ${existingSlots} slot(s).` 
+        });
+      }
+    }
 
     doctor.availableSlots.push(...slots);
     await doctor.save();
@@ -101,9 +211,22 @@ exports.getDashboardStats = async (req, res) => {
       const slotDate = new Date(a.slot.date).toISOString().split("T")[0];
       return slotDate === today;
     });
+    
+    // Count unique patients (unique user IDs) for today
+    const uniquePatientsToday = new Set(todayAppts.map(a => a.user.toString())).size;
+    
+    // Count pending appointments for today (not completed)
+    const todayPending = todayAppts.filter((a) => a.status !== "completed" && a.status !== "cancelled").length;
+    
     const completed = appointments.filter((a) => a.status === "completed").length;
+    const todayCompleted = todayAppts.filter((a) => a.status === "completed").length;
     const totalEarnings = appointments
       .filter((a) => a.status === "completed" || a.status === "confirmed")
+      .reduce((sum, a) => sum + a.doctorFee, 0);
+    
+    // Calculate pending earnings (confirmed but not completed)
+    const pendingEarnings = appointments
+      .filter((a) => a.status === "confirmed")
       .reduce((sum, a) => sum + a.doctorFee, 0);
 
     // Calculate monthly growth percentage
@@ -126,7 +249,7 @@ exports.getDashboardStats = async (req, res) => {
       ? (((currentMonthCount - lastMonthCount) / lastMonthCount) * 100).toFixed(1)
       : currentMonthCount > 0 ? 100 : 0;
 
-    res.json({ total: appointments.length, today: todayAppts.length, completed, totalEarnings, growthPercent });
+    res.json({ total: appointments.length, today: uniquePatientsToday, todayPending, completed, todayCompleted, totalEarnings, pendingEarnings, growthPercent });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -138,8 +261,20 @@ exports.completeAppointment = async (req, res) => {
     const appt = await Appointment.findOne({ _id: req.params.id, doctor: doctor._id });
     if (!appt) return res.status(404).json({ message: "Appointment not found" });
 
+    // Prevent completing already completed or cancelled appointments
+    if (appt.status === "completed") {
+      return res.status(400).json({ message: "Appointment is already completed" });
+    }
+    if (appt.status === "cancelled") {
+      return res.status(400).json({ message: "Cannot complete a cancelled appointment" });
+    }
+
     if (appt.status !== "confirmed") {
       return res.status(400).json({ message: "Only confirmed appointments can be completed" });
+    }
+
+    if (!appt.prescription || !appt.prescription.medicines || appt.prescription.medicines.length === 0) {
+      return res.status(400).json({ message: "Please add a prescription before completing the appointment" });
     }
 
     appt.status = "completed";
@@ -164,6 +299,17 @@ exports.confirmAppointment = async (req, res) => {
     const doctor = await Doctor.findOne({ user: req.user._id });
     const appt = await Appointment.findOne({ _id: req.params.id, doctor: doctor._id });
     if (!appt) return res.status(404).json({ message: "Appointment not found" });
+
+    // Prevent confirming already confirmed/completed/cancelled appointments
+    if (appt.status === "confirmed") {
+      return res.status(400).json({ message: "Appointment is already confirmed" });
+    }
+    if (appt.status === "completed") {
+      return res.status(400).json({ message: "Cannot confirm a completed appointment" });
+    }
+    if (appt.status === "cancelled") {
+      return res.status(400).json({ message: "Cannot confirm a cancelled appointment" });
+    }
 
     if (appt.status !== "pending") {
       return res.status(400).json({ message: "Only pending appointments can be confirmed" });

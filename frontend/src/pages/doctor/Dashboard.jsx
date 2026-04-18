@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 
 const DoctorDashboard = () => {
   const { doctor, user } = useAuthStore()
-  const [stats, setStats] = useState({ total: 0, today: 0, completed: 0, totalEarnings: 0, growthPercent: 0 })
+  const [stats, setStats] = useState({ total: 0, today: 0, completed: 0, todayCompleted: 0, totalEarnings: 0, pendingEarnings: 0, growthPercent: 0 })
   const [todayAppointments, setTodayAppointments] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -110,7 +110,7 @@ const DoctorDashboard = () => {
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">payments</span>
             </div>
-            <p className="text-2xl font-extrabold font-headline text-on-surface">${stats.totalEarnings}</p>
+            <p className="text-2xl font-extrabold font-headline text-on-surface">₹{stats.totalEarnings}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Total Earnings</p>
           </div>
         </div>
@@ -140,12 +140,12 @@ const DoctorDashboard = () => {
               <span className="material-symbols-outlined">group</span>
             </div>
             <div className="flex -space-x-2">
-              <div className="w-7 h-7 rounded-full bg-slate-100 border-2 border-surface-container-lowest flex items-center justify-center text-[8px] font-bold text-on-surface-variant">+{Math.max(0, stats.today - stats.completed)}</div>
+              <div className="w-7 h-7 rounded-full bg-slate-100 border-2 border-surface-container-lowest flex items-center justify-center text-[8px] font-bold text-on-surface-variant">+{stats.todayPending || 0}</div>
             </div>
           </div>
           <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Today's Patients</p>
           <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.today}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">{stats.today - stats.completed} consultations left</p>
+          <p className="text-[11px] text-on-surface-variant mt-2">{stats.todayPending || 0} consultations left</p>
         </div>
 
         {/* Stat Card 3 */}
@@ -156,8 +156,8 @@ const DoctorDashboard = () => {
             </div>
             <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">{stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% Done</span>
           </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Completed Today</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.completed} <span className="text-on-surface-variant font-light">/ {stats.today}</span></h3>
+          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Completed</p>
+          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.completed} <span className="text-on-surface-variant font-light">/ {stats.total}</span></h3>
           <div className="w-full bg-surface-container-high h-1.5 rounded-full mt-3 overflow-hidden">
             <div className="bg-emerald-500 h-full" style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`, transition: 'width 1s ease-in-out' }}></div>
           </div>
@@ -172,8 +172,8 @@ const DoctorDashboard = () => {
             <Link to="/doctor/appointments" className="p-1.5 hover:bg-surface-container-low rounded-lg"><span className="material-symbols-outlined text-on-surface-variant text-lg">arrow_outward</span></Link>
           </div>
           <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Earnings</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">${stats.totalEarnings}</h3>
-          <p className="text-[11px] text-indigo-600 font-bold mt-2">${stats.today * (doctor?.fee || 120)} pending</p>
+          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">₹{stats.totalEarnings}</h3>
+          <p className="text-[11px] text-indigo-600 font-bold mt-2">₹{stats.pendingEarnings} pending</p>
         </div>
       </section>
 

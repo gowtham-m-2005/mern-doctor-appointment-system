@@ -30,12 +30,16 @@ const Appointments = () => {
 
   useEffect(() => {
     if (highlightAppointmentId && !loading) {
-      setTimeout(() => {
+      const scrollToElement = (retries = 3) => {
         const element = document.querySelector(`[data-appointment-id="${highlightAppointmentId}"]`)
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } else if (retries > 0) {
+          setTimeout(() => scrollToElement(retries - 1), 200)
         }
-      }, 100)
+      }
+      const scrollTimeout = setTimeout(() => scrollToElement(), 500)
+      return () => clearTimeout(scrollTimeout)
     }
   }, [highlightAppointmentId, loading])
 

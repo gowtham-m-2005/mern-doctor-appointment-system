@@ -82,8 +82,24 @@ exports.bookAppointment = async (req, res) => {
       return res.status(400).json({ message: "doctorId, slot.date and slot.startTime are required" });
     }
 
+    // Prevent booking with past dates
+    const today = new Date().toISOString().split('T')[0];
+    if (slot.date < today) {
+      return res.status(400).json({ message: "Cannot book appointments for past dates" });
+    }
+
+    // Validate time format (HH:MM)
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(slot.startTime)) {
+      return res.status(400).json({ message: "Invalid time format. Use HH:MM format" });
+    }
+
+    // Prevent doctor from booking their own appointments
     const doctor = await Doctor.findById(doctorId);
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+    if (doctor.user.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: "You cannot book appointments with yourself" });
+    }
     if (doctor.isApproved !== "approved") {
       return res.status(400).json({ message: "This doctor is not accepting appointments" });
     }
@@ -100,10 +116,34 @@ exports.bookAppointment = async (req, res) => {
       return res.status(400).json({ message: "You already have a booking for this slot" });
     }
 
+    // Check if user has too many pending appointments (spam prevention)
+    const pendingAppts = await Appointment.find({
+      user: req.user._id,
+      status: { $in: ["pending", "confirmed"] },
+      "slot.date": { $gte: today }
+    });
+
+    if (pendingAppts.length >= 10) {
+      return res.status(400).json({ message: "You have too many pending appointments. Please wait for confirmation or cancel some." });
+    }
+
     const slotIdx = doctor.availableSlots.findIndex(
       (s) => s.date === slot.date && s.startTime === slot.startTime && !s.isBooked
     );
     if (slotIdx === -1) return res.status(400).json({ message: "Slot not available" });
+
+    // Check if doctor has reached max appointments for this date
+    const existingAppointments = await Appointment.find({
+      doctor: doctorId,
+      "slot.date": slot.date,
+      status: { $in: ["pending", "confirmed"] }
+    });
+    
+    if (existingAppointments.length >= doctor.maxAppointmentsPerDay) {
+      return res.status(400).json({ 
+        message: `Doctor has reached maximum appointments (${doctor.maxAppointmentsPerDay}) for this date. Please choose another date.` 
+      });
+    }
 
     doctor.availableSlots[slotIdx].isBooked = true;
     await doctor.save();
@@ -176,6 +216,40 @@ exports.cancelAppointment = async (req, res) => {
     }
     if (appt.status === "completed") {
       return res.status(400).json({ message: "Cannot cancel a completed appointment" });
+    }
+    if (appt.status === "pending") {
+      // Allow cancellation of pending appointments without 24-hour restriction
+      appt.status = "cancelled";
+      await appt.save();
+      
+      // Free up the slot
+      const doctor = await Doctor.findById(appt.doctor);
+      const cancelFormattedDate = new Date(appt.slot.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      if (doctor) {
+        const slotIdx = doctor.availableSlots.findIndex(
+          (s) => s.date === appt.slot.date && s.startTime === appt.slot.startTime
+        );
+        if (slotIdx !== -1) doctor.availableSlots[slotIdx].isBooked = false;
+        await doctor.save();
+
+        await createNotification(
+          doctor.user,
+          "Appointment Cancelled",
+          `An appointment for ${cancelFormattedDate} at ${appt.slot.startTime} has been cancelled by the patient.`,
+          "general",
+          appt._id
+        );
+      }
+
+      await createNotification(
+        req.user._id,
+        "Appointment Cancelled",
+        `Your appointment on ${cancelFormattedDate} at ${appt.slot.startTime} has been cancelled.`,
+        "general",
+        appt._id
+      );
+
+      return res.json({ message: "Appointment cancelled successfully" });
     }
 
     const apptDateTime = new Date(`${appt.slot.date}T${appt.slot.startTime}`);
