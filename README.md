@@ -308,12 +308,3 @@ doctor-appointment-system/
 - Email notifications can be configured via the email service
 
 ---
-
-## 🚧 Future Enhancements
-
-- Video consultation integration
-- Payment gateway integration
-- SMS notifications
-- Analytics dashboard
-- Multi-language support
-- Mobile app development
