@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { Filter } from 'lucide-react'
 import api from '../../api/axios'
@@ -7,19 +7,37 @@ import api from '../../api/axios'
 const STATUS_FILTERS = ['all', 'confirmed', 'completed', 'cancelled', 'pending']
 
 const Appointments = () => {
+  const location = useLocation()
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [dateFilter, setDateFilter] = useState('all')
   const [selectedPrescription, setSelectedPrescription] = useState(null)
   const [rescheduleModal, setRescheduleModal] = useState(null)
   const [availableSlots, setAvailableSlots] = useState([])
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [rescheduleLoading, setRescheduleLoading] = useState(false)
   const [doctorProfile, setDoctorProfile] = useState(null)
+  const [highlightAppointmentId, setHighlightAppointmentId] = useState(null)
 
   useEffect(() => {
     fetchAppointments()
-  }, [])
+    if (location.state?.highlightAppointmentId) {
+      setHighlightAppointmentId(location.state.highlightAppointmentId)
+      setTimeout(() => setHighlightAppointmentId(null), 2000)
+    }
+  }, [location.state])
+
+  useEffect(() => {
+    if (highlightAppointmentId && !loading) {
+      setTimeout(() => {
+        const element = document.querySelector(`[data-appointment-id="${highlightAppointmentId}"]`)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+    }
+  }, [highlightAppointmentId, loading])
 
   const fetchAppointments = async () => {
     try {
@@ -54,7 +72,7 @@ const Appointments = () => {
   }
 
   const canCancel = (slot) => {
-    const apptDateTime = new Date(`${slot.date}T${slot.startTime}`)
+    const apptDateTime = new Date(slot.date)
     const diffHours = (apptDateTime - new Date()) / (1000 * 60 * 60)
     return diffHours > 24
   }
@@ -62,6 +80,17 @@ const Appointments = () => {
   const filteredAppointments = statusFilter === 'all'
     ? appointments
     : appointments.filter(a => a.status === statusFilter)
+
+  const dateFilteredAppointments = filteredAppointments.filter(a => {
+    if (dateFilter === 'all') return true
+    const slotDate = new Date(a.slot.date).toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+    
+    if (dateFilter === 'today') return slotDate === today
+    if (dateFilter === 'tomorrow') return slotDate === tomorrow
+    return true
+  })
 
   const openRescheduleModal = async (appt) => {
     setRescheduleModal(appt)
@@ -116,8 +145,8 @@ const Appointments = () => {
     }
   }
 
-  const upcomingAppointments = filteredAppointments.filter(a => a.status === 'confirmed' || a.status === 'pending')
-  const pastAppointments = filteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled')
+  const upcomingAppointments = dateFilteredAppointments.filter(a => a.status === 'confirmed' || a.status === 'pending')
+  const pastAppointments = dateFilteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled')
 
   return (
     <div className="space-y-6 animate-fade-in pb-24 md:pb-10 max-w-7xl mx-auto">
@@ -153,6 +182,24 @@ const Appointments = () => {
         ))}
       </div>
 
+      {/* Date Filter */}
+      <div className="flex items-center gap-2 flex-wrap mt-3">
+        <span className="text-sm font-medium text-on-surface-variant">Date:</span>
+        {['all', 'today', 'tomorrow'].map((d) => (
+          <button
+            key={d}
+            onClick={() => setDateFilter(d)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
+              dateFilter === d
+                ? 'bg-secondary text-on-secondary shadow-md shadow-secondary/10'
+                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high'
+            }`}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -168,22 +215,17 @@ const Appointments = () => {
           {/* Appointments List */}
           <div className="col-span-12 lg:col-span-8 space-y-6">
             {/* Upcoming Section */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl font-bold text-on-surface">Upcoming Visits</h2>
-                <span className="h-[1px] flex-1 bg-outline-variant/20"></span>
-                <span className="bg-primary-fixed text-on-primary-fixed text-xs font-bold px-3 py-1 rounded-full">{upcomingAppointments.length} Scheduled</span>
-              </div>
-
-              {upcomingAppointments.length === 0 ? (
-                <div className="text-center py-12 bg-surface-container-lowest rounded-2xl">
-                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">event_busy</span>
-                  <p className="text-on-surface-variant">No upcoming appointments</p>
+            {upcomingAppointments.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-xl font-bold text-on-surface">Upcoming Visits</h2>
+                  <span className="h-[1px] flex-1 bg-outline-variant/20"></span>
+                  <span className="bg-primary-fixed text-on-primary-fixed text-xs font-bold px-3 py-1 rounded-full">{upcomingAppointments.length} Scheduled</span>
                 </div>
-              ) : (
-                <div className="space-y-4" key={`upcoming-${statusFilter}`}>
+
+                <div className="space-y-4" key={`upcoming-${statusFilter}-${dateFilter}`}>
                   {upcomingAppointments.map((appt, index) => (
-                    <div key={appt._id} className="bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-6 shadow-[0_4px_20px_rgba(0,82,174,0.04)] hover:shadow-[0_4px_32px_rgba(0,82,174,0.08)] transition-all animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-6 shadow-[0_4px_20px_rgba(0,82,174,0.04)] hover:shadow-[0_4px_32px_rgba(0,82,174,0.08)] transition-all animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
                       <div className="w-20 h-20 rounded-2xl bg-surface-container-low flex flex-col items-center justify-center text-primary border border-primary/5">
                         <span className="text-xs font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                         <span className="text-2xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -245,8 +287,8 @@ const Appointments = () => {
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Past Section */}
             {pastAppointments.length > 0 && (
@@ -255,9 +297,9 @@ const Appointments = () => {
                   <h2 className="text-xl font-bold text-on-surface">Past Appointments</h2>
                   <span className="h-[1px] flex-1 bg-outline-variant/20"></span>
                 </div>
-                <div className="space-y-4" key={`past-${statusFilter}`}>
+                <div className="space-y-4" key={`past-${statusFilter}-${dateFilter}`}>
                   {pastAppointments.map((appt, index) => (
-                    <div key={appt._id} className="bg-surface-container-low/50 p-6 rounded-2xl flex items-center gap-6 opacity-80 hover:opacity-100 transition-all animate-fade-in" style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
+                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-low/50 p-6 rounded-2xl flex items-center gap-6 opacity-80 hover:opacity-100 transition-all animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2 opacity-100' : ''}`} style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
                       <div className="w-20 h-20 rounded-2xl bg-surface-container flex flex-col items-center justify-center text-on-surface-variant">
                         <span className="text-xs font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                         <span className="text-2xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -272,7 +314,7 @@ const Appointments = () => {
                               Dr. {appt.doctor?.user?.name || 'Unknown'}
                             </button>
                             <p className="text-primary text-sm font-semibold">{appt.doctor?.specialization}</p>
-                            <p className="text-on-surface-variant text-sm mt-1">{appt.status}</p>
+                            <p className="text-on-surface-variant text-sm mt-1">{appt.slot.startTime} - {appt.slot.endTime}</p>
                           </div>
                           {getStatusBadge(appt.status)}
                         </div>
@@ -297,7 +339,6 @@ const Appointments = () => {
                 </div>
               </div>
             )}
-          </div>
 
           {/* Sidebar */}
           <div className="col-span-4 space-y-8">
@@ -320,25 +361,7 @@ const Appointments = () => {
               </div>
               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
             </div>
-
-            <div className="bg-gradient-to-br from-primary to-primary-container p-8 rounded-3xl text-white shadow-xl shadow-primary/20">
-              <div className="flex items-center justify-between mb-8">
-                <span className="material-symbols-outlined text-3xl opacity-80">calendar_month</span>
-                <span className="bg-white/20 text-[10px] uppercase font-bold px-2 py-1 rounded">Live Status</span>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs text-white/70 font-medium uppercase tracking-widest">Total Appointments</p>
-                  <h3 className="text-xl font-bold mt-1">{filteredAppointments.length}</h3>
-                  <p className="text-sm text-white/60">{upcomingAppointments.length} upcoming</p>
-                </div>
-                <div className="h-[1px] bg-white/10"></div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Completion Rate</span>
-                  <span className="text-lg font-black">{filteredAppointments.length > 0 ? Math.round((pastAppointments.filter(a => a.status === 'completed').length / filteredAppointments.length) * 100) : 0}%</span>
-                </div>
-              </div>
-            </div>
+          </div>
           </div>
         </div>
       )}

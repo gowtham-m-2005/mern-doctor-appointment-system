@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import api from '../../api/axios'
 import { Calendar, Clock, DollarSign, Filter, RefreshCw } from 'lucide-react'
 
 const STATUS_FILTERS = ['all', 'confirmed', 'completed', 'cancelled', 'pending']
 
 const AdminAppointments = () => {
+  const location = useLocation()
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [dateFilter, setDateFilter] = useState('all')
   const [total, setTotal] = useState(0)
   const [error, setError] = useState(null)
+  const [highlightAppointmentId, setHighlightAppointmentId] = useState(null)
   const formatDate = (dateStr) => {
     if (!dateStr) return '—'
     const date = new Date(dateStr)
@@ -18,7 +22,22 @@ const AdminAppointments = () => {
 
   useEffect(() => {
     fetchAppointments()
-  }, [])
+    if (location.state?.highlightAppointmentId) {
+      setHighlightAppointmentId(location.state.highlightAppointmentId)
+      setTimeout(() => setHighlightAppointmentId(null), 2000)
+    }
+  }, [location.state])
+
+  useEffect(() => {
+    if (highlightAppointmentId && !loading) {
+      setTimeout(() => {
+        const element = document.querySelector(`[data-appointment-id="${highlightAppointmentId}"]`)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+    }
+  }, [highlightAppointmentId, loading])
 
   const fetchAppointments = async () => {
     setLoading(true)
@@ -60,7 +79,18 @@ const AdminAppointments = () => {
     ? appointments
     : appointments.filter(a => a.status === statusFilter)
 
-  const revenue = filteredAppointments
+  const dateFilteredAppointments = filteredAppointments.filter(a => {
+    if (dateFilter === 'all') return true
+    const slotDate = new Date(a.slot.date).toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+    
+    if (dateFilter === 'today') return slotDate === today
+    if (dateFilter === 'tomorrow') return slotDate === tomorrow
+    return true
+  })
+
+  const revenue = dateFilteredAppointments
     .filter((a) => ['confirmed', 'completed'].includes(a.status))
     .reduce((sum, a) => sum + (a.commission || 0), 0)
 
@@ -83,10 +113,10 @@ const AdminAppointments = () => {
       {/* Quick stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total',     value: filteredAppointments.length,          bg: 'bg-surface-container-high',    text: 'text-on-surface' },
-          { label: 'Confirmed', value: filteredAppointments.filter(a => a.status === 'confirmed').length,  bg: 'bg-green-fixed',  text: 'text-green' },
-          { label: 'Completed', value: filteredAppointments.filter(a => a.status === 'completed').length,  bg: 'bg-blue-fixed',   text: 'text-blue' },
-          { label: 'Cancelled', value: filteredAppointments.filter(a => a.status === 'cancelled').length,  bg: 'bg-error-container',    text: 'text-on-error-container' },
+          { label: 'Total',     value: dateFilteredAppointments.length,          bg: 'bg-surface-container-high',    text: 'text-on-surface' },
+          { label: 'Confirmed', value: dateFilteredAppointments.filter(a => a.status === 'confirmed').length,  bg: 'bg-green-fixed',  text: 'text-green' },
+          { label: 'Completed', value: dateFilteredAppointments.filter(a => a.status === 'completed').length,  bg: 'bg-blue-fixed',   text: 'text-blue' },
+          { label: 'Cancelled', value: dateFilteredAppointments.filter(a => a.status === 'cancelled').length,  bg: 'bg-error-container',    text: 'text-on-error-container' },
         ].map((s) => (
           <div key={s.label} className="bg-surface-container-low rounded-2xl flex items-center gap-3 p-4 shadow-sm">
             <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center`}>
@@ -97,6 +127,24 @@ const AdminAppointments = () => {
               <p className="text-xs text-on-surface-variant">{s.label}</p>
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Date Filter */}
+      <div className="flex items-center gap-2 flex-wrap mt-3">
+        <span className="text-sm font-medium text-on-surface-variant">Date:</span>
+        {['all', 'today', 'tomorrow'].map((d) => (
+          <button
+            key={d}
+            onClick={() => setDateFilter(d)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
+              dateFilter === d
+                ? 'bg-secondary text-on-secondary shadow-md shadow-secondary/10'
+                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high'
+            }`}
+          >
+            {d}
+          </button>
         ))}
       </div>
 
@@ -141,7 +189,7 @@ const AdminAppointments = () => {
             <p className="text-error mb-2">{error}</p>
             <button onClick={fetchAppointments} className="text-primary font-medium hover:underline">Try again</button>
           </div>
-        ) : filteredAppointments.length === 0 ? (
+        ) : dateFilteredAppointments.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4" />
             <p className="text-on-surface-variant">No appointments found</p>
@@ -160,9 +208,9 @@ const AdminAppointments = () => {
                   <th className="px-6 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-outline-variant/10" key={`table-${statusFilter}`}>
-                {filteredAppointments.map((appt, index) => (
-                  <tr key={appt._id} className="hover:bg-surface-container-high/50 transition-colors animate-fade-in" style={{ animationDelay: `${index * 30}ms` }}>
+              <tbody className="divide-y divide-outline-variant/10" key={`table-${statusFilter}-${dateFilter}`}>
+                {dateFilteredAppointments.map((appt, index) => (
+                  <tr key={appt._id} data-appointment-id={appt._id} className={`hover:bg-surface-container-high/50 transition-colors animate-fade-in ${highlightAppointmentId === appt._id ? 'bg-primary/10' : ''}`} style={{ animationDelay: `${index * 30}ms` }}>
                     <td className="px-6 py-4">
                       <p className="font-medium text-sm text-on-surface">{appt.user?.name || '—'}</p>
                       <p className="text-xs text-on-surface-variant/60">{appt.user?.email}</p>

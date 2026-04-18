@@ -97,7 +97,10 @@ exports.getDashboardStats = async (req, res) => {
     const appointments = await Appointment.find({ doctor: doctor._id });
     const today = new Date().toISOString().split("T")[0];
 
-    const todayAppts = appointments.filter((a) => a.slot.date === today);
+    const todayAppts = appointments.filter((a) => {
+      const slotDate = new Date(a.slot.date).toISOString().split("T")[0];
+      return slotDate === today;
+    });
     const completed = appointments.filter((a) => a.status === "completed").length;
     const totalEarnings = appointments
       .filter((a) => a.status === "completed" || a.status === "confirmed")

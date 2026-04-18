@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { Filter } from 'lucide-react'
 import api from '../../api/axios'
@@ -7,16 +7,34 @@ import api from '../../api/axios'
 const STATUS_FILTERS = ['all', 'confirmed', 'completed', 'cancelled', 'pending']
 
 const DoctorAppointments = () => {
+  const location = useLocation()
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [dateFilter, setDateFilter] = useState('all')
   const [selectedAppt, setSelectedAppt] = useState(null)
   const [prescription, setPrescription] = useState({ notes: '', medicines: [{ name: '', dosage: '', duration: '' }] })
   const [saving, setSaving] = useState(false)
+  const [highlightAppointmentId, setHighlightAppointmentId] = useState(null)
 
   useEffect(() => {
     fetchAppointments()
-  }, [])
+    if (location.state?.highlightAppointmentId) {
+      setHighlightAppointmentId(location.state.highlightAppointmentId)
+      setTimeout(() => setHighlightAppointmentId(null), 2000)
+    }
+  }, [location.state])
+
+  useEffect(() => {
+    if (highlightAppointmentId && !loading) {
+      setTimeout(() => {
+        const element = document.querySelector(`[data-appointment-id="${highlightAppointmentId}"]`)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+    }
+  }, [highlightAppointmentId, loading])
 
   const fetchAppointments = async () => {
     try {
@@ -92,6 +110,17 @@ const DoctorAppointments = () => {
     ? appointments
     : appointments.filter(a => a.status === statusFilter)
 
+  const dateFilteredAppointments = filteredAppointments.filter(a => {
+    if (dateFilter === 'all') return true
+    const slotDate = new Date(a.slot.date).toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+    
+    if (dateFilter === 'today') return slotDate === today
+    if (dateFilter === 'tomorrow') return slotDate === tomorrow
+    return true
+  })
+
   const getStatusBadge = (status) => {
     const styles = {
       confirmed: 'bg-secondary-container text-on-secondary-container',
@@ -102,8 +131,8 @@ const DoctorAppointments = () => {
     return <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${styles[status] || 'bg-surface-container-low'}`}>{status}</span>
   }
 
-  const upcomingAppointments = filteredAppointments.filter(a => a.status === 'confirmed' || a.status === 'pending')
-  const pastAppointments = filteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled')
+  const upcomingAppointments = dateFilteredAppointments.filter(a => a.status === 'confirmed' || a.status === 'pending')
+  const pastAppointments = dateFilteredAppointments.filter(a => a.status === 'completed' || a.status === 'cancelled')
 
   return (
     <div className="space-y-6 animate-fade-in pb-24 md:pb-10 max-w-7xl mx-auto">
@@ -144,6 +173,24 @@ const DoctorAppointments = () => {
         ))}
       </div>
 
+      {/* Date Filter */}
+      <div className="flex items-center gap-2 flex-wrap mt-3">
+        <span className="text-sm font-medium text-on-surface-variant">Date:</span>
+        {['all', 'today', 'tomorrow'].map((d) => (
+          <button
+            key={d}
+            onClick={() => setDateFilter(d)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
+              dateFilter === d
+                ? 'bg-secondary text-on-secondary shadow-md shadow-secondary/10'
+                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high'
+            }`}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -154,20 +201,16 @@ const DoctorAppointments = () => {
           {/* Mobile Appointments */}
           <div className="md:hidden space-y-6">
             {/* Mobile Section Label */}
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-bold text-on-surface">Upcoming Visits</h2>
-              <span className="bg-primary-fixed text-on-primary-fixed text-[10px] font-bold px-2 py-0.5 rounded-full">{upcomingAppointments.length}</span>
-            </div>
+            {upcomingAppointments.length > 0 && (
+              <>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-bold text-on-surface">Upcoming Visits</h2>
+                  <span className="bg-primary-fixed text-on-primary-fixed text-[10px] font-bold px-2 py-0.5 rounded-full">{upcomingAppointments.length}</span>
+                </div>
 
-            {upcomingAppointments.length === 0 ? (
-              <div className="text-center py-8 bg-surface-container-lowest rounded-2xl">
-                <span className="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2">event_busy</span>
-                <p className="text-on-surface-variant text-sm">No upcoming appointments</p>
-              </div>
-            ) : (
-              <div className="space-y-3" key={`mobile-upcoming-${statusFilter}`}>
-                {upcomingAppointments.map((appt, index) => (
-                  <div key={appt._id} className="bg-surface-container-lowest p-4 rounded-2xl flex items-center gap-4 shadow-sm animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                <div className="space-y-3" key={`mobile-upcoming-${statusFilter}-${dateFilter}`}>
+                  {upcomingAppointments.map((appt, index) => (
+                  <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-lowest p-4 rounded-2xl flex items-center gap-4 shadow-sm animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
                     <div className="w-14 h-14 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-primary border border-primary/5 flex-shrink-0">
                       <span className="text-[10px] font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                       <span className="text-xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -200,16 +243,17 @@ const DoctorAppointments = () => {
                   </div>
                 ))}
               </div>
-            )}
+                </>
+              )}
 
             {pastAppointments.length > 0 && (
               <>
                 <div className="flex items-center gap-3 pt-4">
                   <h2 className="text-lg font-bold text-on-surface">Past Appointments</h2>
                 </div>
-                <div className="space-y-3" key={`mobile-past-${statusFilter}`}>
+                <div className="space-y-3" key={`mobile-past-${statusFilter}-${dateFilter}`}>
                   {pastAppointments.map((appt, index) => (
-                    <div key={appt._id} className="bg-surface-container-low/50 p-4 rounded-2xl flex items-center gap-4 opacity-80 animate-fade-in" style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
+                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-low/50 p-4 rounded-2xl flex items-center gap-4 opacity-80 animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2 opacity-100' : ''}`} style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
                       <div className="w-14 h-14 rounded-xl bg-surface-container flex flex-col items-center justify-center text-on-surface-variant flex-shrink-0">
                         <span className="text-[10px] font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                         <span className="text-xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -252,21 +296,17 @@ const DoctorAppointments = () => {
             {/* Appointments List (LHS) */}
             <div className="col-span-8 space-y-6">
               {/* Section Label */}
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl font-bold text-on-surface">Upcoming Visits</h2>
-                <span className="h-[1px] flex-1 bg-outline-variant/20"></span>
-                <span className="bg-primary-fixed text-on-primary-fixed text-xs font-bold px-3 py-1 rounded-full">{upcomingAppointments.length} Scheduled</span>
-              </div>
+              {upcomingAppointments.length > 0 && (
+                <>
+                  <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-bold text-on-surface">Upcoming Visits</h2>
+                    <span className="h-[1px] flex-1 bg-outline-variant/20"></span>
+                    <span className="bg-primary-fixed text-on-primary-fixed text-xs font-bold px-3 py-1 rounded-full">{upcomingAppointments.length} Scheduled</span>
+                  </div>
 
-              {upcomingAppointments.length === 0 ? (
-                <div className="text-center py-12 bg-surface-container-lowest rounded-2xl">
-                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">event_busy</span>
-                  <p className="text-on-surface-variant">No upcoming appointments</p>
-                </div>
-              ) : (
-                <div className="space-y-4" key={`desktop-upcoming-${statusFilter}`}>
-                  {upcomingAppointments.map((appt, index) => (
-                    <div key={appt._id} className="bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-6 shadow-[0_12px_32px_rgba(0,82,174,0.04)] hover:shadow-[0_12px_48px_rgba(0,82,174,0.08)] transition-all group animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                  <div className="space-y-4" key={`desktop-upcoming-${statusFilter}-${dateFilter}`}>
+                    {upcomingAppointments.map((appt, index) => (
+                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-6 shadow-[0_12px_32px_rgba(0,82,174,0.04)] hover:shadow-[0_12px_48px_rgba(0,82,174,0.08)] transition-all group animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
                       <div className="w-20 h-20 rounded-2xl bg-surface-container-low flex flex-col items-center justify-center text-primary border border-primary/5">
                         <span className="text-xs font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                         <span className="text-2xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -306,6 +346,7 @@ const DoctorAppointments = () => {
                     </div>
                   ))}
                 </div>
+                </>
               )}
 
               {/* Section Label: Past */}
@@ -315,9 +356,9 @@ const DoctorAppointments = () => {
                     <h2 className="text-xl font-bold text-on-surface">Past Appointments</h2>
                     <span className="h-[1px] flex-1 bg-outline-variant/20"></span>
                   </div>
-                  <div className="space-y-4" key={`desktop-past-${statusFilter}`}>
+                  <div className="space-y-4" key={`desktop-past-${statusFilter}-${dateFilter}`}>
                     {pastAppointments.map((appt, index) => (
-                      <div key={appt._id} className="bg-surface-container-low/50 p-6 rounded-2xl flex items-center gap-6 opacity-80 hover:opacity-100 transition-all animate-fade-in" style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
+                      <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-low/50 p-6 rounded-2xl flex items-center gap-6 opacity-80 hover:opacity-100 transition-all animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2 opacity-100' : ''}`} style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
                         <div className="w-20 h-20 rounded-2xl bg-surface-container flex flex-col items-center justify-center text-on-surface-variant">
                           <span className="text-xs font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                           <span className="text-2xl font-black">{new Date(appt.slot.date).getDate()}</span>

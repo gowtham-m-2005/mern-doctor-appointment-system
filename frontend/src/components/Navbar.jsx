@@ -101,6 +101,38 @@ const Navbar = () => {
     }
   }
 
+  const handleNotificationClick = async (notif) => {
+    if (!notif.isRead) {
+      await markRead(notif._id)
+    }
+    setShowNotifs(false)
+
+    const role = user?.role
+    const message = notif.message?.toLowerCase() || ''
+
+    if (message.includes('prescription')) {
+      if (role === 'user') {
+        navigate('/prescriptions', { state: { highlightAppointmentId: notif.relatedAppointment || notif.appointment } })
+      } else if (role === 'doctor') {
+        navigate('/doctor/appointments', { state: { highlightAppointmentId: notif.relatedAppointment || notif.appointment } })
+      }
+    } else if ((notif.type === 'booking' || notif.type === 'general') && (notif.relatedAppointment || notif.appointment)) {
+      if (role === 'user') {
+        navigate('/my-appointments', { state: { highlightAppointmentId: notif.relatedAppointment || notif.appointment } })
+      } else if (role === 'doctor') {
+        navigate('/doctor/appointments', { state: { highlightAppointmentId: notif.relatedAppointment || notif.appointment } })
+      } else if (role === 'admin') {
+        navigate('/admin/appointments', { state: { highlightAppointmentId: notif.relatedAppointment || notif.appointment } })
+      }
+    } else if (notif.type === 'doctor_approval') {
+      if (role === 'admin') {
+        navigate('/admin/doctors')
+      }
+    } else if (notif.type === 'account') {
+      navigate('/dashboard')
+    }
+  }
+
   const getNotifIcon = (type) => {
     switch (type) {
       case 'reminder': return 'schedule'
@@ -262,7 +294,7 @@ const Navbar = () => {
                 notifications.slice(0, 20).map((notif) => (
                   <div
                     key={notif._id}
-                    onClick={() => !notif.isRead && markRead(notif._id)}
+                    onClick={() => handleNotificationClick(notif)}
                     className={`p-4 rounded-xl mb-2 cursor-pointer transition-colors ${
                       !notif.isRead ? 'bg-primary-fixed' : 'bg-surface-container-low'
                     }`}
@@ -327,7 +359,7 @@ const Navbar = () => {
                 notifications.slice(0, 20).map((notif) => (
                   <div
                     key={notif._id}
-                    onClick={() => !notif.isRead && markRead(notif._id)}
+                    onClick={() => handleNotificationClick(notif)}
                     className={`p-4 border-b border-outline-variant/10 last:border-0 cursor-pointer hover:bg-surface-container-low transition-colors ${
                       !notif.isRead ? 'bg-primary-fixed' : ''
                     }`}

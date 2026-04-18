@@ -30,6 +30,7 @@ const DoctorSlots = () => {
   const { user } = useAuthStore()
   const [slots, setSlots] = useState([])
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [newSlots, setNewSlots] = useState([{ date: '', startTime: '', endTime: '' }])
 
@@ -54,14 +55,17 @@ const DoctorSlots = () => {
     const validSlots = newSlots.filter((s) => s.date && s.startTime && s.endTime)
     if (validSlots.length === 0) return
 
+    setSaving(true)
     try {
       await api.post('/doctor/slots', { slots: validSlots })
       setNewSlots([{ date: '', startTime: '', endTime: '' }])
-      fetchSlots()
+      await fetchSlots()
       setMessage('Slots added successfully')
       setTimeout(() => setMessage(''), 3000)
     } catch (err) {
       setMessage(err.response?.data?.message || 'Failed to add slots')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -90,9 +94,9 @@ const DoctorSlots = () => {
 
   if (loading) {
     return (
-      <div className="space-y-4 animate-pulse">
-        <div className="bg-surface-container-lowest h-32 rounded-3xl" />
-        <div className="bg-surface-container-lowest h-64 rounded-3xl" />
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-on-surface-variant mt-4">Loading slots...</p>
       </div>
     )
   }
@@ -168,8 +172,15 @@ const DoctorSlots = () => {
               <span className="material-symbols-outlined">add</span>
               Add More Slots
             </button>
-            <button type="submit" className="flex-1 bg-primary text-on-primary px-6 py-3 rounded-xl font-bold hover:bg-primary-container transition-all shadow-md shadow-primary/10">
-              Save Slots
+            <button type="submit" disabled={saving} className="flex-1 bg-primary text-on-primary px-6 py-3 rounded-xl font-bold hover:bg-primary-container transition-all shadow-md shadow-primary/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {saving ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-on-primary border-t-transparent rounded-full animate-spin"></div>
+                  Saving...
+                </>
+              ) : (
+                'Save Slots'
+              )}
             </button>
           </div>
         </form>

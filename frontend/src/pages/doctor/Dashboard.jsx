@@ -20,9 +20,12 @@ const DoctorDashboard = () => {
         api.get('/doctor/appointments'),
       ])
       setStats(statsRes.data)
-      
+
       const today = new Date().toISOString().split('T')[0]
-      const todayAppts = apptsRes.data.filter((a) => a.slot.date === today && a.status === 'confirmed')
+      const todayAppts = apptsRes.data.filter((a) => {
+        const slotDate = new Date(a.slot.date).toISOString().split('T')[0]
+        return slotDate === today && (a.status === 'confirmed' || a.status === 'pending')
+      })
       setTodayAppointments(todayAppts.slice(0, 5))
     } catch (err) {
       console.error(err)
