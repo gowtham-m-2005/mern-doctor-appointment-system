@@ -148,19 +148,8 @@ const AdminAppointments = () => {
         ))}
       </div>
 
-      {/* Revenue earned from visible appointments */}
-      <div className="bg-surface-container-low rounded-2xl flex items-center gap-4 p-5 shadow-sm border border-primary/10">
-        <div className="w-12 h-12 bg-primary-fixed rounded-xl flex items-center justify-center">
-          <DollarSign className="w-6 h-6 text-primary" />
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-primary">₹{revenue.toFixed(2)}</p>
-          <p className="text-sm text-on-surface-variant">Platform commission from visible appointments</p>
-        </div>
-      </div>
-
-      {/* Filter */}
-      <div className="flex items-center gap-2 flex-wrap">
+      {/* Status Filter */}
+      <div className="flex items-center gap-2 flex-wrap mt-3">
         <Filter className="w-4 h-4 text-on-surface-variant" />
         {STATUS_FILTERS.map((s) => (
           <button
@@ -175,6 +164,17 @@ const AdminAppointments = () => {
             {s}
           </button>
         ))}
+      </div>
+
+      {/* Revenue earned from visible appointments */}
+      <div className="bg-surface-container-low rounded-2xl flex items-center gap-4 p-5 shadow-sm border border-primary/10">
+        <div className="w-12 h-12 bg-primary-fixed rounded-xl flex items-center justify-center">
+          <DollarSign className="w-6 h-6 text-primary" />
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-primary">₹{revenue.toFixed(2)}</p>
+          <p className="text-sm text-on-surface-variant">Platform commission from visible appointments</p>
+        </div>
       </div>
 
       {/* Table */}

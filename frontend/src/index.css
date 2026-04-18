@@ -10,14 +10,79 @@
   body {
     @apply bg-surface text-on-surface antialiased font-sans;
   }
+
+  .dark body {
+    background-color: #1a1a24;
+    color: #e0e0e0;
+  }
+
   * {
     @apply box-border;
   }
+  
+  /* Hide scrollbar on small screens */
+  @media (max-width: 640px) {
+    * {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    *::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
   .filled-icon {
     font-variation-settings: 'FILL' 1;
+  }
+}
+
+@layer utilities {
+  /* Dark mode background colors with good contrast */
+  .dark .bg-surface-container-lowest {
+    background-color: #1f1f2e !important;
+  }
+  .dark .bg-surface-container-low {
+    background-color: #2a2a3e !important;
+  }
+  .dark .bg-surface-container {
+    background-color: #252538 !important;
+  }
+  .dark .bg-surface-container-high {
+    background-color: #35354f !important;
+  }
+  .dark .bg-surface-container-highest {
+    background-color: #3d3d57 !important;
+  }
+  .dark .bg-surface-container-low\/50 {
+    background-color: #2a2a3e80 !important;
+  }
+  
+  /* Dark mode text colors with good contrast */
+  .dark .text-on-surface {
+    color: #e0e0e0 !important;
+  }
+  .dark .text-on-surface-variant {
+    color: #9ca3af !important;
+  }
+  .dark .text-on-surface-variant\/60 {
+    color: #c4c9d2 !important;
+  }
+  
+  /* Dark mode hover effects */
+  .dark .bg-surface-container-lowest:hover {
+    background-color: #252538 !important;
+  }
+  .dark .bg-surface-container-low:hover {
+    background-color: #35354f !important;
+  }
+  .dark .bg-surface-container-low\/50:hover {
+    background-color: #35354f80 !important;
+  }
+  .dark tr:hover {
+    background-color: #2a2a3e !important;
   }
 }
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import api from '../api/axios'
+import DarkModeToggle from './DarkModeToggle'
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuthStore()
@@ -163,6 +164,7 @@ const Navbar = () => {
               DocBook
             </Link>
             <div className="flex items-center gap-3">
+              <DarkModeToggle />
               <Link to="/login" className="text-on-surface-variant hover:text-primary font-medium text-sm">
                 Login
               </Link>
@@ -178,6 +180,19 @@ const Navbar = () => {
 
   return (
     <>
+      {/* Mobile Top Header */}
+      <nav className="md:hidden bg-surface-container-lowest border-b border-outline-variant/10 sticky top-0 z-50">
+        <div className="px-4">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center gap-2 text-primary font-bold text-xl">
+              <span className="material-symbols-outlined">medical_services</span>
+              DocBook
+            </Link>
+            <DarkModeToggle />
+          </div>
+        </div>
+      </nav>
+
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest border-r border-outline-variant/10 flex-col z-50">
         {/* Logo */}
@@ -221,6 +236,7 @@ const Navbar = () => {
                 <p className="font-bold text-on-surface truncate">{user?.name}</p>
                 <p className="text-xs text-on-surface-variant capitalize">{user?.role}</p>
               </div>
+              <DarkModeToggle />
             </div>
             <button
               onClick={handleLogout}

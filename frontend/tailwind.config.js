@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -55,6 +56,15 @@ export default {
         'on-error': '#ffffff',
         'on-error-container': '#93000a',
       },
+      // Dark mode colors
+      'dark-surface': '#1e1e1e',
+      'dark-surface-container': '#252525',
+      'dark-surface-container-low': '#2a2a2a',
+      'dark-surface-container-lowest': '#1a1a1a',
+      'dark-surface-container-high': '#333333',
+      'dark-on-surface': '#e0e0e0',
+      'dark-on-surface-variant': '#b0b0b0',
+      'dark-surface-container-highest': '#3d3d3d',
       borderRadius: {
         'DEFAULT': '0.25rem',
         'lg': '0.5rem',

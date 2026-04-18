@@ -21,7 +21,9 @@ const AdminDashboard = () => {
     try {
       const [statsRes, apptsRes] = await Promise.all([api.get('/admin/dashboard'), api.get('/admin/appointments')])
       setStats(statsRes.data)
-      setRecentAppointments(apptsRes.data.slice(0, 5))
+      // Handle both array (old) and paginated (new) responses
+      const appointments = Array.isArray(apptsRes.data) ? apptsRes.data : (apptsRes.data.appointments || [])
+      setRecentAppointments(appointments.slice(0, 5))
     } catch (err) {
       console.error(err)
     } finally {
