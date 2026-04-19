@@ -32,7 +32,7 @@ const Login = () => {
       else if (data.user.role === 'doctor') navigate('/doctor')
       else navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed')
+      setError('Invalid email or password')
     } finally {
       setLoading(false)
     }

@@ -30,13 +30,7 @@ const Register = () => {
       login(data)
       navigate('/dashboard')
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Registration failed'
-      const errors = err.response?.data?.errors
-      if (errors && Array.isArray(errors)) {
-        setError(`${errorMessage}: ${errors.join(', ')}`)
-      } else {
-        setError(errorMessage)
-      }
+      setError('Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }
