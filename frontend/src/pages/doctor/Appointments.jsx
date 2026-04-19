@@ -195,7 +195,7 @@ const DoctorAppointments = () => {
             className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
               statusFilter === s
                 ? 'bg-primary text-on-primary shadow-md shadow-primary/10'
-                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high'
+                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-highest'
             }`}
           >
             {s}
@@ -213,7 +213,7 @@ const DoctorAppointments = () => {
             className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
               dateFilter === d
                 ? 'bg-secondary text-on-secondary shadow-md shadow-secondary/10'
-                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high'
+                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-highest'
             }`}
           >
             {d}
@@ -240,7 +240,7 @@ const DoctorAppointments = () => {
 
                 <div className="space-y-3" key={`mobile-upcoming-${statusFilter}-${dateFilter}`}>
                   {upcomingAppointments.map((appt, index) => (
-                  <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-lowest p-4 rounded-2xl flex items-center gap-4 shadow-sm animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
+                  <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-lowest p-4 rounded-2xl flex items-center gap-4 shadow-[0_12px_32px_rgba(0,82,174,0.12)] hover:shadow-[0_12px_48px_rgba(0,82,174,0.24)] transition-all animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
                     <div className="w-14 h-14 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-primary border border-primary/5 flex-shrink-0">
                       <span className="text-[10px] font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                       <span className="text-xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -295,7 +295,7 @@ const DoctorAppointments = () => {
                 </div>
                 <div className="space-y-3" key={`mobile-past-${statusFilter}-${dateFilter}`}>
                   {pastAppointments.map((appt, index) => (
-                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-low/50 p-4 rounded-2xl flex items-center gap-4 opacity-80 animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2 opacity-100' : ''}`} style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
+                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-low/50 p-4 rounded-2xl flex items-center gap-4 shadow-[0_12px_32px_rgba(0,82,174,0.12)] hover:shadow-[0_12px_48px_rgba(0,82,174,0.24)] opacity-80 hover:opacity-100 transition-all animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2 opacity-100' : ''}`} style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
                       <div className="w-14 h-14 rounded-xl bg-surface-container flex flex-col items-center justify-center text-on-surface-variant flex-shrink-0">
                         <span className="text-[10px] font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                         <span className="text-xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -348,7 +348,7 @@ const DoctorAppointments = () => {
 
                   <div className="space-y-4" key={`desktop-upcoming-${statusFilter}-${dateFilter}`}>
                     {upcomingAppointments.map((appt, index) => (
-                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-6 shadow-[0_12px_32px_rgba(0,82,174,0.04)] hover:shadow-[0_12px_48px_rgba(0,82,174,0.08)] transition-all group animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
+                    <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-lowest p-6 rounded-2xl flex items-center gap-6 shadow-[0_12px_32px_rgba(0,82,174,0.12)] hover:shadow-[0_12px_48px_rgba(0,82,174,0.24)] transition-all group animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2' : ''}`} style={{ animationDelay: `${index * 50}ms` }}>
                       <div className="w-20 h-20 rounded-2xl bg-surface-container-low flex flex-col items-center justify-center text-primary border border-primary/5">
                         <span className="text-xs font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                         <span className="text-2xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -412,7 +412,7 @@ const DoctorAppointments = () => {
                   </div>
                   <div className="space-y-4" key={`desktop-past-${statusFilter}-${dateFilter}`}>
                     {pastAppointments.map((appt, index) => (
-                      <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-low/50 p-6 rounded-2xl flex items-center gap-6 opacity-80 hover:opacity-100 transition-all animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2 opacity-100' : ''}`} style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
+                      <div key={appt._id} data-appointment-id={appt._id} className={`bg-surface-container-low/50 p-6 rounded-2xl flex items-center gap-6 shadow-[0_12px_32px_rgba(0,82,174,0.12)] hover:shadow-[0_12px_48px_rgba(0,82,174,0.24)] opacity-80 hover:opacity-100 transition-all animate-fade-in ${highlightAppointmentId === appt._id ? 'ring-2 ring-primary ring-offset-2 opacity-100' : ''}`} style={{ animationDelay: `${(index + upcomingAppointments.length) * 50}ms` }}>
                         <div className="w-20 h-20 rounded-2xl bg-surface-container flex flex-col items-center justify-center text-on-surface-variant">
                           <span className="text-xs font-bold uppercase tracking-widest">{new Date(appt.slot.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                           <span className="text-2xl font-black">{new Date(appt.slot.date).getDate()}</span>
@@ -509,7 +509,7 @@ const DoctorAppointments = () => {
       {selectedAppt && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-surface-container-lowest rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in shadow-2xl">
-            <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between">
+            <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-on-surface">Add Prescription</h2>
                 <p className="text-on-surface-variant">Patient: {selectedAppt.user?.name}</p>
@@ -523,7 +523,7 @@ const DoctorAppointments = () => {
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-2">Notes</label>
                 <textarea
-                  className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-low min-h-[120px]"
+                  className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-low min-h-[120px]" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
                   value={prescription.notes}
                   onChange={(e) => setPrescription({ ...prescription, notes: e.target.value })}
                   placeholder="Doctor's notes and recommendations..."
@@ -537,21 +537,21 @@ const DoctorAppointments = () => {
                     <div key={idx} className="flex items-center gap-2">
                       <input
                         type="text"
-                        className="flex-1 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-low"
+                        className="flex-1 px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 bg-surface-container-low" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
                         placeholder="Medicine name"
                         value={med.name}
                         onChange={(e) => updateMedicine(idx, 'name', e.target.value)}
                       />
                       <input
                         type="text"
-                        className="w-28 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-low"
+                        className="w-28 px-4 py-3 rounded-xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}} focus:outline-none focus:ring-2 focus:style={{borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)'}} bg-surface-container-low"
                         placeholder="Dosage"
                         value={med.dosage}
                         onChange={(e) => updateMedicine(idx, 'dosage', e.target.value)}
                       />
                       <input
                         type="text"
-                        className="w-28 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-low"
+                        className="w-28 px-4 py-3 rounded-xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}} focus:outline-none focus:ring-2 focus:style={{borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)'}} bg-surface-container-low"
                         placeholder="Duration"
                         value={med.duration}
                         onChange={(e) => updateMedicine(idx, 'duration', e.target.value)}

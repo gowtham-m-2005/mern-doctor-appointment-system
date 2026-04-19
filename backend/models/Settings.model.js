@@ -6,6 +6,9 @@ const settingsSchema = new mongoose.Schema(
     appName: { type: String, default: "DocBook" },
     appLogo: { type: String, default: "" },
     contactEmail: { type: String, default: "" },
+    // Theme settings
+    defaultTheme: { type: String, default: "default_blue", enum: ["default_blue", "medical_teal", "professional_purple", "nature_green", "warm_orange", "modern_gray"] },
+    allowUserThemeOverride: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

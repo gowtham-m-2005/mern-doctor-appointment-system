@@ -187,7 +187,7 @@ const Appointments = () => {
             className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
               statusFilter === s
                 ? 'bg-primary text-on-primary shadow-md shadow-primary/10'
-                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high'
+                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-highest'
             }`}
           >
             {s}
@@ -205,7 +205,7 @@ const Appointments = () => {
             className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition-all ${
               dateFilter === d
                 ? 'bg-secondary text-on-secondary shadow-md shadow-secondary/10'
-                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-high'
+                : 'bg-surface-container-low text-on-surface hover:bg-surface-container-highest'
             }`}
           >
             {d}
@@ -220,7 +220,7 @@ const Appointments = () => {
         </div>
       ) : filteredAppointments.length === 0 ? (
         <div className="text-center py-12 bg-surface-container-lowest rounded-2xl">
-          <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">event_busy</span>
+          <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
           <p className="text-on-surface-variant">No appointments found</p>
         </div>
       ) : (
@@ -250,7 +250,7 @@ const Appointments = () => {
                               onClick={() => setDoctorProfile(appt.doctor)}
                               className="text-lg font-bold text-on-surface hover:text-primary transition-colors text-left"
                             >
-                              Dr. {appt.doctor?.user?.name || 'Unknown'}
+                              {appt.doctor?.user?.name || 'Unknown'}
                             </button>
                             <p className="text-primary text-sm font-semibold">{appt.doctor?.specialization}</p>
                             <p className="text-on-surface-variant text-sm mt-1">{appt.slot.startTime} - {appt.slot.endTime}</p>
@@ -286,7 +286,7 @@ const Appointments = () => {
                             </button>
                           )}
                           {(appt.status === 'confirmed' || appt.status === 'pending') && !canCancel(appt.slot) && (
-                            <span className="text-on-surface-variant/60 text-xs flex items-center gap-1">
+                            <span className="text-xs flex items-center gap-1" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 60%, transparent)'}}>
                               <span className="material-symbols-outlined text-sm">info</span>
                               Cannot modify within 24h
                             </span>
@@ -324,7 +324,7 @@ const Appointments = () => {
                               onClick={() => setDoctorProfile(appt.doctor)}
                               className="text-lg font-bold text-on-surface hover:text-primary transition-colors text-left"
                             >
-                              Dr. {appt.doctor?.user?.name || 'Unknown'}
+                              {appt.doctor?.user?.name || 'Unknown'}
                             </button>
                             <p className="text-primary text-sm font-semibold">{appt.doctor?.specialization}</p>
                             <p className="text-on-surface-variant text-sm mt-1">{appt.slot.startTime} - {appt.slot.endTime}</p>
@@ -383,7 +383,7 @@ const Appointments = () => {
       {selectedPrescription && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full animate-scale-in shadow-2xl">
-            <div className="p-6 border-b border-outline-variant/10">
+            <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
               <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined">description</span>
                 Prescription
@@ -426,7 +426,7 @@ const Appointments = () => {
       {rescheduleModal && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] animate-fade-in overflow-y-auto flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full animate-scale-in max-h-[80vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between">
+            <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between">
               <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined">event_repeat</span>
                 Reschedule Appointment
@@ -437,11 +437,11 @@ const Appointments = () => {
             </div>
             <div className="p-6 space-y-4">
               <p className="text-on-surface-variant text-sm">
-                Select a new available slot with Dr. {rescheduleModal.doctor?.user?.name}
+                Select a new available slot with {rescheduleModal.doctor?.user?.name}
               </p>
               {availableSlots.length === 0 ? (
                 <div className="text-center py-8">
-                  <span className="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2">event_busy</span>
+                  <span className="material-symbols-outlined text-4xl mb-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
                   <p className="text-on-surface-variant text-sm">No available slots</p>
                 </div>
               ) : (
@@ -489,7 +489,7 @@ const Appointments = () => {
       {doctorProfile && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full animate-scale-in shadow-2xl">
-            <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between">
+            <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between">
               <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined">person</span>
                 Doctor Profile
@@ -504,7 +504,7 @@ const Appointments = () => {
                   <span className="material-symbols-outlined text-3xl">person</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-on-surface">Dr. {doctorProfile.user?.name}</h3>
+                  <h3 className="text-lg font-bold text-on-surface">{doctorProfile.user?.name}</h3>
                   <p className="text-primary font-medium">{doctorProfile.specialization}</p>
                 </div>
               </div>
@@ -529,7 +529,7 @@ const Appointments = () => {
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-outline-variant/10">
+            <div className="p-6 border-t style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
               <button
                 onClick={() => setDoctorProfile(null)}
                 className="w-full px-4 py-3 bg-surface-container-low text-on-surface rounded-xl font-bold hover:bg-surface-container-high transition-all"

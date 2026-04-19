@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
+import { useBrandingStore } from './store/brandingStore'
+import { useEffect } from 'react'
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -8,6 +10,7 @@ import UserDashboard from './pages/user/Dashboard'
 import UserDoctors from './pages/user/Doctors'
 import UserAppointments from './pages/user/Appointments'
 import UserPrescriptions from './pages/user/Prescriptions'
+import UserSettings from './pages/user/Settings'
 import DoctorDashboard from './pages/doctor/Dashboard'
 import DoctorProfile from './pages/doctor/Profile'
 import DoctorAppointments from './pages/doctor/Appointments'
@@ -17,6 +20,7 @@ import AdminDoctors from './pages/admin/Doctors'
 import AdminUsers from './pages/admin/Users'
 import AdminSettings from './pages/admin/Settings'
 import AdminAppointments from './pages/admin/Appointments'
+import { applyTheme } from './constants/themes'
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, user } = useAuthStore()
@@ -38,6 +42,17 @@ const PublicRoute = ({ children }) => {
 }
 
 function App() {
+  const { theme, fetchThemeSettings } = useAuthStore()
+  const { fetchBranding } = useBrandingStore()
+
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
+
+  useEffect(() => {
+    fetchThemeSettings()
+    fetchBranding()
+  }, [])
   return (
     <Routes>
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -49,6 +64,7 @@ function App() {
         <Route path="/doctors" element={<ProtectedRoute allowedRoles={['user']}><UserDoctors /></ProtectedRoute>} />
         <Route path="/my-appointments" element={<ProtectedRoute allowedRoles={['user']}><UserAppointments /></ProtectedRoute>} />
         <Route path="/prescriptions" element={<ProtectedRoute allowedRoles={['user']}><UserPrescriptions /></ProtectedRoute>} />
+        <Route path="/user/settings" element={<ProtectedRoute allowedRoles={['user']}><UserSettings /></ProtectedRoute>} />
         
         <Route path="/doctor" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorDashboard /></ProtectedRoute>} />
         <Route path="/doctor/profile" element={<ProtectedRoute allowedRoles={['doctor']}><DoctorProfile /></ProtectedRoute>} />

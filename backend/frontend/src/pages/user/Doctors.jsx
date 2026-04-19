@@ -104,7 +104,7 @@ const Doctors = () => {
                   {doctor.user?.name?.charAt(0) || 'D'}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg">Dr. {doctor.user?.name}</h3>
+                  <h3 className="font-semibold text-lg">{doctor.user?.name}</h3>
                   <p className="text-primary-600 text-sm">{doctor.specialization}</p>
                   <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -147,7 +147,7 @@ const Doctors = () => {
             <div className="p-6 border-b flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold">Select Time Slot</h2>
-                <p className="text-gray-500">Dr. {selectedDoctor.user?.name}</p>
+                <p className="text-gray-500">{selectedDoctor.user?.name}</p>
               </div>
               <button onClick={() => setSelectedDoctor(null)} className="p-2 hover:bg-gray-100 rounded-lg">
                 <X className="w-5 h-5" />

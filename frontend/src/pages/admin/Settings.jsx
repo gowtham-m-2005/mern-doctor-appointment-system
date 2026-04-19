@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react'
 import api from '../../api/axios'
+import { useBrandingStore } from '../../store/brandingStore'
 import { Settings, Percent, Type, Image, Mail, Save } from 'lucide-react'
+import ThemePicker from '../../components/ThemePicker'
+
+const getLogoUrl = (appLogo) => {
+  if (!appLogo || appLogo === '') return null
+  if (appLogo.startsWith('http')) return appLogo
+  return appLogo.startsWith('/') ? appLogo : `/${appLogo}`
+}
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
@@ -13,6 +21,7 @@ const AdminSettings = () => {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [logoFile, setLogoFile] = useState(null)
+  const { updateBranding } = useBrandingStore()
 
   useEffect(() => {
     fetchSettings()
@@ -41,12 +50,14 @@ const AdminSettings = () => {
       formData.append('contactEmail', settings.contactEmail)
       if (logoFile) formData.append('appLogo', logoFile)
 
-      await api.put('/admin/settings', formData, {
+      const { data } = await api.put('/admin/settings', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       setMessage('Settings saved successfully')
       setLogoFile(null)
-      fetchSettings()
+      // Update settings from response and refresh branding
+      setSettings(data)
+      updateBranding(data)
     } catch (err) {
       setMessage(err.response?.data?.message || 'Failed to save settings')
     } finally {
@@ -59,8 +70,8 @@ const AdminSettings = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="animate-fade-in-down">
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500">Configure application settings</p>
+        <h1 className="text-2xl font-bold text-on-surface">Settings</h1>
+        <p className="text-on-surface-variant">Configure application settings</p>
       </div>
 
       {message && (
@@ -86,7 +97,7 @@ const AdminSettings = () => {
               max="100"
               required
             />
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-on-surface-variant mt-1">
               This percentage will be added to doctor's fee as platform commission
             </p>
           </div>
@@ -111,9 +122,18 @@ const AdminSettings = () => {
 
             <div>
               <label className="label">App Logo</label>
+              {console.log('Settings appLogo:', settings.appLogo, 'URL:', getLogoUrl(settings.appLogo))}
               <div className="flex items-center gap-4">
                 {settings.appLogo && (
-                  <img src={settings.appLogo} alt="Logo" className="w-16 h-16 object-contain rounded-lg border" />
+                  <img 
+                    src={getLogoUrl(settings.appLogo)} 
+                    alt="Logo" 
+                    className="w-16 h-16 object-contain rounded-lg border"
+                    onError={(e) => {
+                      console.error('Settings logo failed to load:', getLogoUrl(settings.appLogo))
+                      e.target.style.display = 'none'
+                    }}
+                  />
                 )}
                 <input
                   type="file"
@@ -125,6 +145,14 @@ const AdminSettings = () => {
               {logoFile && <p className="text-sm text-green-600 mt-1">Selected: {logoFile.name}</p>}
             </div>
           </div>
+        </div>
+
+        <div className="card animate-scale-in stagger-3">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Theme Settings
+          </h2>
+          <ThemePicker isAdmin={true} />
         </div>
 
         <div className="card">

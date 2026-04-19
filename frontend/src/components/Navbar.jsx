@@ -1,11 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useBrandingStore } from '../store/brandingStore'
 import api from '../api/axios'
-import DarkModeToggle from './DarkModeToggle'
+
+const getLogoUrl = (appLogo) => {
+  if (!appLogo || appLogo === '') return null
+  if (appLogo.startsWith('http')) return appLogo
+  // Backend serves uploads at root path - ensure leading slash
+  return appLogo.startsWith('/') ? appLogo : `/${appLogo}`
+}
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuthStore()
+  const { appName, appLogo } = useBrandingStore()
   const navigate = useNavigate()
   const location = useLocation()
   const [notifications, setNotifications] = useState([])
@@ -156,15 +164,25 @@ const Navbar = () => {
 
   if (!isAuthenticated) {
     return (
-      <nav className="bg-surface-container-lowest border-b border-outline-variant/10 sticky top-0 z-50">
+      <nav className="bg-surface-container-lowest border-b sticky top-0 z-50" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}>
         <div className="px-4 md:px-6">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 text-primary font-bold text-xl">
-              <span className="material-symbols-outlined">medical_services</span>
-              DocBook
+              {appLogo ? (
+                <img 
+                  src={getLogoUrl(appLogo)} 
+                  alt="Logo" 
+                  className="w-8 h-8 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                  }}
+                />
+              ) : (
+                <span className="material-symbols-outlined">medical_services</span>
+              )}
+              {appName}
             </Link>
             <div className="flex items-center gap-3">
-              <DarkModeToggle />
               <Link to="/login" className="text-on-surface-variant hover:text-primary font-medium text-sm">
                 Login
               </Link>
@@ -181,25 +199,46 @@ const Navbar = () => {
   return (
     <>
       {/* Mobile Top Header */}
-      <nav className="md:hidden bg-surface-container-lowest border-b border-outline-variant/10 sticky top-0 z-50">
+      <nav className="md:hidden border-b sticky top-0 z-50" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', backgroundColor: 'var(--surface)'}}>
         <div className="px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 text-primary font-bold text-xl">
-              <span className="material-symbols-outlined">medical_services</span>
-              DocBook
+              {appLogo ? (
+                <img 
+                  src={getLogoUrl(appLogo)} 
+                  alt="Logo" 
+                  className="w-8 h-8 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                  }}
+                />
+              ) : (
+                <span className="material-symbols-outlined">medical_services</span>
+              )}
+              {appName}
             </Link>
-            <DarkModeToggle />
           </div>
         </div>
       </nav>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-surface-container-lowest border-r border-outline-variant/10 flex-col z-50">
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-72 border-r flex-col z-50" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', backgroundColor: 'var(--surface)'}}>
         {/* Logo */}
-        <div className="p-6 border-b border-outline-variant/10">
+        <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
           <Link to="/" className="flex items-center gap-2 text-primary font-bold text-xl">
-            <span className="material-symbols-outlined text-2xl">medical_services</span>
-            DocBook
+            {appLogo ? (
+              <img 
+                src={getLogoUrl(appLogo)} 
+                alt="Logo" 
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none'
+                }}
+              />
+            ) : (
+              <span className="material-symbols-outlined text-2xl">medical_services</span>
+            )}
+            {appName}
           </Link>
         </div>
 
@@ -226,8 +265,8 @@ const Navbar = () => {
         </nav>
 
         {/* User Section */}
-        <div className="p-4 border-t border-outline-variant/10">
-          <div className="bg-surface-container-low rounded-2xl p-4">
+        <div className="p-4">
+          <div className="bg-surface-container-low rounded-2xl p-4 shadow-md" style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">
                 {user?.name?.charAt(0) || 'U'}
@@ -236,7 +275,6 @@ const Navbar = () => {
                 <p className="font-bold text-on-surface truncate">{user?.name}</p>
                 <p className="text-xs text-on-surface-variant capitalize">{user?.role}</p>
               </div>
-              <DarkModeToggle />
             </div>
             <button
               onClick={handleLogout}
@@ -250,7 +288,7 @@ const Navbar = () => {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant/10 z-50 px-2 pb-6 pt-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t z-50 px-2 pb-6 pt-2" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', backgroundColor: 'var(--surface)'}}>
         <div className="flex items-center justify-around h-16">
           <button
             onClick={() => setShowNotifs(true)}
@@ -286,8 +324,8 @@ const Navbar = () => {
       {/* Mobile Notification Modal */}
       {showNotifs && (
         <div className="md:hidden fixed inset-0 bg-black/50 flex items-end z-50 animate-fade-in">
-          <div className="bg-surface-container-lowest w-full rounded-t-3xl max-h-[80vh] overflow-hidden animate-slide-up">
-            <div className="p-4 border-b border-outline-variant/10 flex items-center justify-between">
+          <div className="w-full rounded-t-3xl max-h-[80vh] overflow-hidden animate-slide-up" style={{backgroundColor: 'var(--surface)'}}>
+            <div className="p-4 border-b flex items-center justify-between" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}>
               <h3 className="font-bold text-lg text-on-surface">Notifications</h3>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
@@ -303,7 +341,7 @@ const Navbar = () => {
             <div className="p-4 overflow-y-auto max-h-[60vh]">
               {notifications.length === 0 ? (
                 <div className="text-center py-12">
-                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-2">notifications</span>
+                  <span className="material-symbols-outlined text-5xl mb-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>notifications</span>
                   <p className="text-on-surface-variant">No notifications yet</p>
                 </div>
               ) : (
@@ -326,7 +364,7 @@ const Navbar = () => {
                         <p className="text-sm text-on-surface-variant mt-1 line-clamp-2">
                           {formatNotificationMessage(notif.message)}
                         </p>
-                        <p className="text-xs text-on-surface-variant/60 mt-2">{timeAgo(notif.createdAt)}</p>
+                        <p className="text-xs mt-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 60%, transparent)'}}>{timeAgo(notif.createdAt)}</p>
                       </div>
                       {!notif.isRead && (
                         <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1"></div>
@@ -341,7 +379,7 @@ const Navbar = () => {
       )}
 
       {/* Desktop Header */}
-      <div className="hidden md:flex fixed top-0 left-72 right-0 h-16 bg-surface-container-lowest border-b border-outline-variant/10 items-center justify-end px-6 z-40">
+      <div className="hidden md:flex fixed top-0 left-72 right-0 h-16 border-b items-center justify-end px-6 z-40" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', backgroundColor: 'var(--surface)'}}>
         <div ref={notifRef}>
           <button
             onClick={() => setShowNotifs(!showNotifs)}
@@ -356,8 +394,8 @@ const Navbar = () => {
         </button>
 
         {showNotifs && (
-          <div className="absolute right-0 mt-2 w-96 bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/10 overflow-hidden">
-            <div className="p-4 border-b border-outline-variant/10 flex items-center justify-between">
+          <div className="absolute right-0 mt-2 w-96 rounded-2xl shadow-xl border overflow-hidden" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', backgroundColor: 'var(--surface)'}}>
+            <div className="p-4 border-b flex items-center justify-between" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}>
               <h3 className="font-bold text-lg text-on-surface">Notifications</h3>
               {unreadCount > 0 && (
                 <button onClick={markAllRead} className="text-sm text-primary font-medium">
@@ -368,7 +406,7 @@ const Navbar = () => {
             <div className="max-h-96 overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="py-12 text-center">
-                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-2">notifications</span>
+                  <span className="material-symbols-outlined text-5xl mb-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>notifications</span>
                   <p className="text-on-surface-variant">No notifications yet</p>
                 </div>
               ) : (
@@ -376,7 +414,7 @@ const Navbar = () => {
                   <div
                     key={notif._id}
                     onClick={() => handleNotificationClick(notif)}
-                    className={`p-4 border-b border-outline-variant/10 last:border-0 cursor-pointer hover:bg-surface-container-low transition-colors ${
+                    className={`p-4 border-b last:border-0 cursor-pointer hover:bg-surface-container-low transition-colors ${
                       !notif.isRead ? 'bg-primary-fixed' : ''
                     }`}
                   >
@@ -391,7 +429,7 @@ const Navbar = () => {
                         <p className="text-sm text-on-surface-variant mt-1 line-clamp-2">
                           {formatNotificationMessage(notif.message)}
                         </p>
-                        <p className="text-xs text-on-surface-variant/60 mt-2">{timeAgo(notif.createdAt)}</p>
+                        <p className="text-xs mt-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 60%, transparent)'}}>{timeAgo(notif.createdAt)}</p>
                       </div>
                       {!notif.isRead && (
                         <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1"></div>

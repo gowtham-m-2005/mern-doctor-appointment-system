@@ -66,28 +66,28 @@ const AdminDashboard = () => {
       {/* Mobile Stats - Horizontal Scroll */}
       <section className="md:hidden overflow-x-auto pb-2 animate-fade-in-up -mx-5 px-5">
         <div className="flex gap-4 pr-6">
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm flex-shrink-0">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border flex-shrink-0" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}}>
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">people</span>
             </div>
             <p className="text-2xl font-extrabold font-headline text-on-surface">{stats.totalUsers}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Users</p>
           </div>
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm flex-shrink-0">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border flex-shrink-0" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}}>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">medical_services</span>
             </div>
             <p className="text-2xl font-extrabold font-headline text-on-surface">{stats.totalDoctors}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Doctors</p>
           </div>
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm flex-shrink-0">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border flex-shrink-0" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}}>
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">event</span>
             </div>
             <p className="text-2xl font-extrabold font-headline text-on-surface">{stats.totalAppointments}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Appointments</p>
           </div>
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm flex-shrink-0">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border flex-shrink-0" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}}>
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">payments</span>
             </div>
@@ -100,7 +100,7 @@ const AdminDashboard = () => {
       {/* Desktop Stats Grid */}
       <section className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Stat Card 1 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow group">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow group">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
               <span className="material-symbols-outlined">people</span>
@@ -113,7 +113,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stat Card 2 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <span className="material-symbols-outlined">medical_services</span>
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stat Card 3 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
               <span className="material-symbols-outlined">event</span>
@@ -139,7 +139,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stat Card 4 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
               <span className="material-symbols-outlined">payments</span>
@@ -192,14 +192,14 @@ const AdminDashboard = () => {
           </div>
         ) : recentAppointments.length === 0 ? (
           <div className="text-center py-12">
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">event_busy</span>
+            <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
             <p className="text-on-surface-variant">No appointments yet</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-outline-variant/20">
+                <tr className="text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 20%, transparent)'}}>
                   <th className="pb-4">Patient</th>
                   <th className="pb-4">Doctor</th>
                   <th className="pb-4">Date & Time</th>
@@ -209,7 +209,7 @@ const AdminDashboard = () => {
               </thead>
               <tbody className="text-sm">
                 {recentAppointments.map((appt) => (
-                  <tr key={appt._id} className="border-b border-outline-variant/10 last:border-0 transition-all duration-200 hover:bg-surface-container-low">
+                  <tr key={appt._id} className="border-b last:border-0 transition-all duration-200 hover:bg-surface-container-high/50" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}}>
                     <td className="py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">
@@ -218,7 +218,7 @@ const AdminDashboard = () => {
                         <span className="font-medium text-on-surface">{appt.user?.name}</span>
                       </div>
                     </td>
-                    <td className="py-4 text-on-surface-variant">Dr. {appt.doctor?.user?.name}</td>
+                    <td className="py-4 text-on-surface-variant">{appt.doctor?.user?.name}</td>
                     <td className="py-4 text-on-surface-variant">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-sm">calendar_today</span>

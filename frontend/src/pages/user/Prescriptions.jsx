@@ -48,8 +48,8 @@ const Prescriptions = () => {
       </div>
 
       {prescriptions.length === 0 ? (
-        <div className="bg-surface-container-lowest p-8 rounded-3xl text-center border border-outline-variant/10">
-          <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">
+        <div className="bg-surface-container-lowest p-8 rounded-3xl text-center border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
+          <span className="material-symbols-outlined text-6xl mb-4" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>
             medication
           </span>
           <h2 className="text-xl font-bold mb-2 text-on-surface">No Prescriptions Yet</h2>
@@ -62,17 +62,17 @@ const Prescriptions = () => {
           {prescriptions.map((item) => (
             <div
               key={item.appointmentId}
-              className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+              className="bg-surface-container-lowest rounded-2xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} shadow-sm hover:shadow-md transition-shadow overflow-hidden"
             >
-              <div className="p-5 border-b border-outline-variant/10">
+              <div className="p-5 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">
-                        Dr. {item.doctorName?.charAt(0) || 'D'}
+                        {item.doctorName?.charAt(0) || 'D'}
                       </div>
                       <div>
-                        <h3 className="font-bold text-on-surface">Dr. {item.doctorName}</h3>
+                        <h3 className="font-bold text-on-surface">{item.doctorName}</h3>
                         <p className="text-sm text-on-surface-variant">{item.doctorSpecialization}</p>
                       </div>
                     </div>
@@ -102,7 +102,7 @@ const Prescriptions = () => {
                     <h4 className="text-sm font-bold uppercase tracking-wider text-on-surface-variant mb-2">
                       Doctor's Notes
                     </h4>
-                    <p className="text-on-surface bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10">
+                    <p className="text-on-surface bg-surface-container-lowest p-4 rounded-xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
                       {item.prescription.notes || 'No notes provided'}
                     </p>
                   </div>
@@ -116,7 +116,7 @@ const Prescriptions = () => {
                         {item.prescription.medicines.map((med, index) => (
                           <div
                             key={index}
-                            className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10"
+                            className="bg-surface-container-lowest p-4 rounded-xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}"
                           >
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
@@ -147,7 +147,7 @@ const Prescriptions = () => {
                   )}
 
                   {item.prescription.addedAt && (
-                    <p className="text-xs text-on-surface-variant/60 mt-4">
+                    <p className="text-xs mt-4" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 60%, transparent)'}}>
                       Added on {formatDate(item.prescription.addedAt)}
                     </p>
                   )}

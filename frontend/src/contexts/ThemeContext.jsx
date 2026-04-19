@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useEffect } from 'react'
+import { useAuthStore } from '../store/authStore'
+import { applyTheme } from '../constants/themes'
 
 const ThemeContext = createContext()
 
@@ -11,29 +13,15 @@ export const useTheme = () => {
 }
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('darkMode')
-    if (saved !== null) {
-      return JSON.parse(saved)
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-  })
+  const { theme } = useAuthStore()
 
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDark))
-    if (isDark) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [isDark])
-
-  const toggleTheme = () => {
-    setIsDark(prev => !prev)
-  }
+    // Apply the selected theme
+    applyTheme(theme || 'default_blue')
+  }, [theme])
 
   return (
-    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
+    <ThemeContext.Provider value={{}}>
       {children}
     </ThemeContext.Provider>
   )

@@ -63,7 +63,7 @@ const AdminDoctors = () => {
                     {doctor.user?.name?.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-medium">Dr. {doctor.user?.name}</p>
+                    <p className="font-medium">{doctor.user?.name}</p>
                     <p className="text-sm text-gray-600">{doctor.specialization} • {doctor.qualification}</p>
                   </div>
                 </div>
@@ -117,7 +117,7 @@ const AdminDoctors = () => {
                         <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
                           {doctor.user?.name?.charAt(0)}
                         </div>
-                        <span>Dr. {doctor.user?.name}</span>
+                        <span>{doctor.user?.name}</span>
                       </div>
                     </td>
                     <td className="py-3">{doctor.specialization}</td>
@@ -147,7 +147,7 @@ const AdminDoctors = () => {
                   {selectedDoctor.user?.name?.charAt(0)}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Dr. {selectedDoctor.user?.name}</h3>
+                  <h3 className="font-semibold text-lg">{selectedDoctor.user?.name}</h3>
                   <p className="text-gray-500">{selectedDoctor.user?.email}</p>
                 </div>
               </div>

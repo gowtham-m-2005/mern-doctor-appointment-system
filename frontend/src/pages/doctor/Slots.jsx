@@ -133,17 +133,17 @@ const DoctorSlots = () => {
         <h2 className="text-xl font-bold text-on-surface mb-6">Add Available Slots</h2>
         <form onSubmit={addSlots} className="space-y-4">
           {newSlots.map((slot, idx) => (
-            <div key={idx} className="flex flex-col md:flex-row md:items-center gap-3 bg-surface-container-lowest p-4 rounded-2xl">
+            <div key={idx} className="flex flex-col md:flex-row md:items-center gap-3 bg-surface-container-lowest p-4 rounded-2xl shadow-sm">
               <input
                 type="date"
-                className="w-full md:flex-1 min-w-[150px] px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
+                className="w-full md:flex-1 min-w-[150px] px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
                 value={slot.date}
                 onChange={(e) => updateSlot(idx, 'date', e.target.value)}
                 required
               />
               <div className="flex items-center gap-3 w-full md:w-auto">
                 <select
-                  className="flex-1 md:w-36 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
+                  className="flex-1 md:w-36 px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
                   value={slot.startTime}
                   onChange={(e) => updateSlot(idx, 'startTime', e.target.value)}
                   required
@@ -155,7 +155,7 @@ const DoctorSlots = () => {
                 </select>
                 <span className="text-on-surface-variant hidden md:block">-</span>
                 <select
-                  className="flex-1 md:w-36 px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 bg-surface-container-lowest"
+                  className="flex-1 md:w-36 px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
                   value={slot.endTime}
                   onChange={(e) => updateSlot(idx, 'endTime', e.target.value)}
                   required
@@ -203,14 +203,14 @@ const DoctorSlots = () => {
         
         {slots.length === 0 ? (
           <div className="text-center py-12 bg-surface-container-lowest rounded-2xl">
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">event_busy</span>
+            <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
             <p className="text-on-surface-variant">No available slots</p>
-            <p className="text-on-surface-variant/60 text-sm mt-1">Add slots above to start accepting appointments</p>
+            <p className="text-sm mt-1" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 60%, transparent)'}}>Add slots above to start accepting appointments</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {slots.map((slot) => (
-              <div key={slot._id} className="bg-surface-container-lowest p-5 rounded-2xl shadow-sm group hover:ring-2 hover:ring-primary/20 transition-all">
+              <div key={slot._id} className="bg-surface-container-lowest p-5 rounded-2xl shadow-sm group hover:ring-2 transition-all">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm font-bold text-on-surface">{formatDate(slot.date)}</span>
                   <button onClick={() => removeSlot(slot._id)} className="p-1 text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100">

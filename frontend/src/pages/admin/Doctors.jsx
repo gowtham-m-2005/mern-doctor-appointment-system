@@ -72,8 +72,8 @@ const AdminDoctors = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between animate-fade-in-down">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Doctor Management</h1>
-          <p className="text-gray-500">Approve and manage all registered doctors</p>
+          <h1 className="text-2xl font-bold text-on-surface">Doctor Management</h1>
+          <p className="text-on-surface-variant">Approve and manage all registered doctors</p>
         </div>
         <button onClick={fetchDoctors} className="btn-secondary flex items-center gap-2">
           <RefreshCw className="w-4 h-4" />
@@ -98,15 +98,15 @@ const AdminDoctors = () => {
                     {doctor.user?.name?.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-medium">Dr. {doctor.user?.name}</p>
-                    <p className="text-sm text-gray-500">{doctor.specialization} • {doctor.qualification}</p>
-                    <p className="text-xs text-gray-400">{doctor.user?.email}</p>
+                    <p className="font-medium">{doctor.user?.name}</p>
+                    <p className="text-sm text-on-surface-variant">{doctor.specialization} • {doctor.qualification}</p>
+                    <p className="text-xs text-on-surface-variant">{doctor.user?.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setSelectedDoctor(doctor)}
-                    className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 border border-gray-300 rounded-lg flex items-center gap-1.5 transition-colors"
+                    className="px-3 py-1.5 text-sm text-on-surface hover:bg-surface-container-high border border-outline-variant rounded-lg flex items-center gap-1.5 transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     Details
@@ -137,12 +137,12 @@ const AdminDoctors = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <h2 className="text-lg font-semibold">
             All Doctors
-            <span className="ml-2 text-sm font-normal text-gray-500">({filtered.length})</span>
+            <span className="ml-2 text-sm font-normal text-on-surface-variant">({filtered.length})</span>
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
               <input
                 type="text"
                 className="input pl-9 w-48 py-1.5 text-sm"
@@ -158,8 +158,8 @@ const AdminDoctors = () => {
                 onClick={() => setFilter(s)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
                   filter === s
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-primary text-on-primary'
+                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
                 {s}
@@ -182,14 +182,14 @@ const AdminDoctors = () => {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-10">
-            <Stethoscope className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No doctors found</p>
+            <Stethoscope className="w-10 h-10 text-on-surface-variant mx-auto mb-3" />
+            <p className="text-on-surface-variant">No doctors found</p>
           </div>
         ) : (
           <div className="overflow-x-auto -mx-6">
             <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <thead className="bg-surface-container-low">
+                <tr className="text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
                   <th className="px-6 py-3">Doctor</th>
                   <th className="px-6 py-3">Specialization</th>
                   <th className="px-6 py-3">Qualification</th>
@@ -199,30 +199,30 @@ const AdminDoctors = () => {
                   <th className="px-6 py-3">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-outline-variant/20">
                 {filtered.map((doctor) => (
-                  <tr key={doctor._id} className="hover:bg-gray-50 transition-all duration-200 hover:shadow-sm">
+                  <tr key={doctor._id} className="hover:bg-surface-container-low transition-all duration-200 hover:shadow-sm">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-sm">
                           {doctor.user?.name?.charAt(0)}
                         </div>
                         <div>
-                          <p className="font-medium text-sm">Dr. {doctor.user?.name}</p>
-                          <p className="text-xs text-gray-400">{doctor.user?.email}</p>
+                          <p className="font-medium text-sm">{doctor.user?.name}</p>
+                          <p className="text-xs text-on-surface-variant">{doctor.user?.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm">{doctor.specialization}</td>
-                    <td className="px-6 py-4 text-sm">{doctor.qualification}</td>
-                    <td className="px-6 py-4 text-sm">{doctor.experience} yrs</td>
-                    <td className="px-6 py-4 text-sm font-medium">₹{doctor.fee}</td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">{doctor.specialization}</td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">{doctor.qualification}</td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">{doctor.experience} yrs</td>
+                    <td className="px-6 py-4 text-sm font-medium text-on-surface-variant">₹{doctor.fee}</td>
                     <td className="px-6 py-4">{getStatusBadge(doctor.isApproved)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => setSelectedDoctor(doctor)}
-                          className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-1.5 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors"
                           title="View details"
                         >
                           <ExternalLink className="w-4 h-4" />
@@ -267,7 +267,7 @@ const AdminDoctors = () => {
       {selectedDoctor && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
-            <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between">
+            <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between">
               <h2 className="text-xl font-bold text-on-surface">Doctor Details</h2>
               <button
                 onClick={() => setSelectedDoctor(null)}
@@ -284,7 +284,7 @@ const AdminDoctors = () => {
                 <div>
                   <h3 className="font-semibold text-lg text-on-surface">Dr. {selectedDoctor.user?.name}</h3>
                   <p className="text-on-surface-variant text-sm">{selectedDoctor.user?.email}</p>
-                  <p className="text-on-surface-variant/60 text-sm">{selectedDoctor.user?.phone || 'No phone'}</p>
+                  <p className="text-sm" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 60%, transparent)'}}>{selectedDoctor.user?.phone || 'No phone'}</p>
                 </div>
               </div>
 

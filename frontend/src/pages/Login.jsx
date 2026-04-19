@@ -1,8 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useBrandingStore } from '../store/brandingStore'
 import api from '../api/axios'
-import { Eye, EyeOff, Mail, Lock, Stethoscope } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
+
+const getLogoUrl = (appLogo) => {
+  if (!appLogo) return null
+  if (appLogo.startsWith('http')) return appLogo
+  // Backend serves uploads at root path - ensure leading slash
+  return appLogo.startsWith('/') ? appLogo : `/${appLogo}`
+}
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' })
@@ -11,6 +19,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuthStore()
+  const { appName, appLogo } = useBrandingStore()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -30,14 +39,18 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-white p-4 animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-fixed to-surface p-4 animate-fade-in">
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-2xl mb-4 animate-scale-in hover:scale-110 transition-transform duration-300">
-            <Stethoscope className="w-8 h-8 text-primary-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-fixed rounded-2xl mb-4 animate-scale-in hover:scale-110 transition-transform duration-300">
+            {appLogo ? (
+              <img src={getLogoUrl(appLogo)} alt="Logo" className="w-10 h-10 object-contain" />
+            ) : (
+              <span className="material-symbols-outlined text-4xl text-on-primary-fixed-variant">medical_services</span>
+            )}
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 animate-fade-in-up stagger-1">Welcome back</h1>
-          <p className="text-gray-500 mt-1 animate-fade-in-up stagger-2">Sign in to your DocBook account</p>
+          <h1 className="text-2xl font-bold text-on-surface animate-fade-in-up stagger-1">Welcome back</h1>
+          <p className="text-on-surface-variant mt-1 animate-fade-in-up stagger-2">Sign in to your {appName} account</p>
         </div>
 
         <div className="card animate-scale-in stagger-3">
@@ -49,7 +62,7 @@ const Login = () => {
             <div>
               <label className="label">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                 <input
                   type="email"
                   className="input pl-10"
@@ -64,7 +77,7 @@ const Login = () => {
             <div>
               <label className="label">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="input pl-10 pr-10"
@@ -76,7 +89,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -93,15 +106,15 @@ const Login = () => {
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <p className="text-gray-500">
+            <p className="text-on-surface-variant">
               Don't have an account?{' '}
-              <Link to="/register" className="text-primary-600 hover:underline font-medium">
+              <Link to="/register" className="text-primary hover:underline font-medium">
                 Sign up
               </Link>
             </p>
-            <p className="mt-2 text-gray-500">
+            <p className="mt-2 text-on-surface-variant">
               Are you a doctor?{' '}
-              <Link to="/register-doctor" className="text-primary-600 hover:underline font-medium">
+              <Link to="/register-doctor" className="text-primary hover:underline font-medium">
                 Register here
               </Link>
             </p>

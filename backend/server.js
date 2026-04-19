@@ -9,6 +9,7 @@ const { apiLimiter, loginLimiter, registerLimiter } = require("./middleware/rate
 const sanitizeInput = require("./middleware/xss.middleware");
 const { logRequest } = require("./middleware/securityLogger.middleware");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler.middleware");
+const { enforceHTTPS, additionalSecurityHeaders } = require("./middleware/https.middleware");
 const { redisClient } = require("./config/redis");
 const { initializeNotificationService } = require("./services/notificationService");
 const { cleanupExpiredSlots } = require("./jobs/cleanupExpiredSlots");
@@ -16,6 +17,12 @@ const { cleanupExpiredSlots } = require("./jobs/cleanupExpiredSlots");
 dotenv.config();
 
 const app = express();
+
+// HIPAA Compliant Security Headers
+if (process.env.ENABLE_HTTPS === 'true' && process.env.NODE_ENV === 'production') {
+  app.use(enforceHTTPS);
+}
+app.use(additionalSecurityHeaders);
 
 // Security headers with Helmet
 app.use(helmet({
@@ -62,6 +69,22 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 // Static uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Public branding endpoint (no auth required)
+const Settings = require('./models/Settings.model');
+app.get("/api/branding", async (req, res) => {
+  try {
+    const settings = await Settings.findOne() || {};
+    res.json({
+      appName: settings.appName || 'DocBook',
+      appLogo: settings.appLogo || '',
+      contactEmail: settings.contactEmail || '',
+      commissionPercent: settings.commissionPercent || 10,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Routes with specific rate limiters
 app.use("/api/auth", loginLimiter, require("./routes/auth.routes"));
 app.use("/api/auth/register", registerLimiter);
@@ -69,6 +92,7 @@ app.use("/api/users", apiLimiter, require("./routes/user.routes"));
 app.use("/api/doctor", apiLimiter, require("./routes/doctor.routes"));
 app.use("/api/appointments", apiLimiter, require("./routes/appointment.routes"));
 app.use("/api/admin", apiLimiter, require("./routes/admin.routes"));
+app.use("/api/theme", apiLimiter, require("./routes/theme.routes"));
 
 // Health check
 app.get("/api/health", (req, res) => res.json({ status: "OK" }));

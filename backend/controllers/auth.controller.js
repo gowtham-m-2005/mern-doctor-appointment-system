@@ -9,6 +9,16 @@ const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expires
 exports.register = async (req, res) => {
   try {
     const { name, email, password, phone, role } = req.body;
+    
+    // HIPAA Compliant: Validate password strength
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({ 
+        message: "Password does not meet security requirements",
+        errors: passwordValidation.errors 
+      });
+    }
+    
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already registered" });
 
@@ -67,6 +77,16 @@ exports.login = async (req, res) => {
 exports.registerDoctor = async (req, res) => {
   try {
     const { name, email, password, phone, specialization, qualification, experience, fee, bio, address } = req.body;
+    
+    // HIPAA Compliant: Validate password strength
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({ 
+        message: "Password does not meet security requirements",
+        errors: passwordValidation.errors 
+      });
+    }
+    
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already registered" });
 

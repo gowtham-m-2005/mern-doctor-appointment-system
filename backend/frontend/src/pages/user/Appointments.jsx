@@ -73,7 +73,7 @@ const Appointments = () => {
                     {appt.doctor?.user?.name?.charAt(0) || 'D'}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">Dr. {appt.doctor?.user?.name || 'Unknown'}</h3>
+                    <h3 className="font-semibold text-lg">{appt.doctor?.user?.name || 'Unknown'}</h3>
                     <p className="text-primary-600 text-sm">{appt.doctor?.specialization}</p>
                     <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
                       <span className="flex items-center gap-1">

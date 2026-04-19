@@ -120,7 +120,7 @@ const AdminDashboard = () => {
                 {recentAppointments.map((appt) => (
                   <tr key={appt._id} className="border-b last:border-0">
                     <td className="py-3">{appt.user?.name}</td>
-                    <td className="py-3">Dr. {appt.doctor?.user?.name}</td>
+                    <td className="py-3">{appt.doctor?.user?.name}</td>
                     <td className="py-3">
                       {appt.slot.date} {appt.slot.startTime}
                     </td>

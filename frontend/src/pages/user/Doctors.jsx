@@ -157,7 +157,7 @@ const Doctors = () => {
           </div>
         ) : doctors.length === 0 ? (
           <div className="text-center py-12 bg-surface-container-lowest rounded-2xl">
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">search_off</span>
+            <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>search_off</span>
             <p className="text-on-surface-variant">No doctors found</p>
           </div>
         ) : (
@@ -169,14 +169,14 @@ const Doctors = () => {
                     <div className="w-20 h-20 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary text-2xl font-bold">
                       {doctor.user?.name?.charAt(0) || 'D'}
                     </div>
-                    <div className="absolute -bottom-2 -right-2 bg-white/80 backdrop-blur-md px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm border border-outline-variant/10">
+                    <div className="absolute -bottom-2 -right-2 bg-white/80 backdrop-blur-md px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
                       <span className="material-symbols-outlined text-[12px] text-yellow-500">star</span>
                       <span className="text-[10px] font-bold">{doctor.rating > 0 ? doctor.rating.toFixed(1) : 'New'}</span>
                     </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
-                      <h3 className="text-lg font-bold text-on-surface leading-tight">Dr. {doctor.user?.name}</h3>
+                      <h3 className="text-lg font-bold text-on-surface leading-tight">{doctor.user?.name}</h3>
                     </div>
                     <p className="text-primary text-sm font-semibold mb-1">{doctor.specialization}</p>
                     <div className="flex items-center gap-1 text-on-surface-variant text-[11px]">
@@ -185,7 +185,7 @@ const Doctors = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between border-t border-outline-variant/10 pt-4">
+                <div className="flex items-center justify-between border-t style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} pt-4">
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-bold text-outline">Consultation Fee</p>
                     <p className="text-sm font-semibold text-on-surface">₹{doctor.totalFee?.toFixed(0) || doctor.fee}</p>
@@ -207,10 +207,10 @@ const Doctors = () => {
       {selectedDoctor && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] animate-fade-in flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col animate-scale-in shadow-2xl">
-            <div className="p-6 border-b border-outline-variant/10 flex items-center justify-between flex-shrink-0">
+            <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between flex-shrink-0">
               <div>
                 <h2 className="text-xl font-bold text-on-surface">Select Time Slot</h2>
-                <p className="text-on-surface-variant">Dr. {selectedDoctor.user?.name} • {selectedDoctor.specialization}</p>
+                <p className="text-on-surface-variant">{selectedDoctor.user?.name} • {selectedDoctor.specialization}</p>
               </div>
               <button
                 onClick={() => { setSelectedDoctor(null); setMessage({ text: '', type: '' }) }}
@@ -245,9 +245,9 @@ const Doctors = () => {
                 </div>
               ) : slots.length === 0 ? (
                 <div className="text-center py-8">
-                  <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">event_busy</span>
+                  <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
                   <p className="text-on-surface-variant">No available slots for this doctor</p>
-                  <p className="text-on-surface-variant/60 text-sm mt-1">Check back later or try another doctor</p>
+                  <p className="text-sm mt-1" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 60%, transparent)'}}>Check back later or try another doctor</p>
                 </div>
               ) : (
                 Object.entries(groupSlotsByDate()).map(([date, dateSlots]) => (
@@ -278,7 +278,7 @@ const Doctors = () => {
             </div>
 
             {bookingSlot && (
-              <div className="p-6 border-t border-outline-variant/10 bg-surface-container-low flex-shrink-0">
+              <div className="p-6 border-t style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} bg-surface-container-low flex-shrink-0">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-sm text-on-surface-variant">Selected slot</p>

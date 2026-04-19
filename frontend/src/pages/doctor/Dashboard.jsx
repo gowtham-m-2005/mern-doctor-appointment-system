@@ -60,7 +60,7 @@ const DoctorDashboard = () => {
       <div className="animate-fade-in-down md:hidden">
         <div>
           <h1 className="text-2xl font-extrabold font-headline text-on-surface tracking-tight">
-            Good morning, <span className="text-primary">Dr. {user?.name?.split(' ')[1] || user?.name}</span>
+            Good morning, <span className="text-primary">{user?.name}</span>
           </h1>
           <p className="text-on-surface-variant mt-1 font-medium text-sm">{stats.today} appointments today</p>
         </div>
@@ -70,12 +70,12 @@ const DoctorDashboard = () => {
       <div className="hidden md:flex flex-col lg:flex-row lg:items-center justify-between gap-6 animate-fade-in-down">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold font-headline text-on-surface tracking-tight">
-            Good morning, <span className="text-primary">Dr. {user?.name?.split(' ')[1] || user?.name}</span>
+            Good morning, <span className="text-primary">{user?.name}</span>
           </h1>
           <p className="text-on-surface-variant mt-1 font-medium">You have <span className="text-on-surface font-bold">{stats.today} appointments</span> scheduled for today.</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-surface-container-lowest px-4 py-2.5 rounded-xl border border-outline-variant/10 flex items-center gap-3">
+          <div className="bg-surface-container-lowest px-4 py-2.5 rounded-xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
             <p className="text-sm font-semibold text-on-surface">Next: {todayAppointments[0]?.user?.name || 'No upcoming'}</p>
           </div>
@@ -85,28 +85,28 @@ const DoctorDashboard = () => {
       {/* Mobile Stats - Horizontal Scroll */}
       <section className="md:hidden overflow-x-auto pb-2 animate-fade-in-up -mx-5 px-5">
         <div className="flex gap-4 pr-6">
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm min-w-[140px]">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border shadow-md min-w-[140px]">
             <div className="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">calendar_month</span>
             </div>
             <p className="text-2xl font-extrabold font-headline text-on-surface">{stats.total}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Total Visits</p>
           </div>
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm min-w-[140px]">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border shadow-md min-w-[140px]">
             <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">group</span>
             </div>
             <p className="text-2xl font-extrabold font-headline text-on-surface">{stats.today}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Today's Patients</p>
           </div>
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm min-w-[140px]">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border shadow-md min-w-[140px]">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">task_alt</span>
             </div>
             <p className="text-2xl font-extrabold font-headline text-on-surface">{stats.completed}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider">Completed Today</p>
           </div>
-          <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/10 shadow-sm min-w-[140px]">
+          <div className="bg-surface-container-lowest p-4 rounded-2xl border shadow-md min-w-[140px]">
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
               <span className="material-symbols-outlined text-lg">payments</span>
             </div>
@@ -119,7 +119,7 @@ const DoctorDashboard = () => {
       {/* Desktop Stats Grid */}
       <section className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Stat Card 1 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow group">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow group">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-primary-fixed text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
               <span className="material-symbols-outlined">calendar_month</span>
@@ -134,7 +134,7 @@ const DoctorDashboard = () => {
         </div>
 
         {/* Stat Card 2 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
               <span className="material-symbols-outlined">group</span>
@@ -149,7 +149,7 @@ const DoctorDashboard = () => {
         </div>
 
         {/* Stat Card 3 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <span className="material-symbols-outlined">task_alt</span>
@@ -164,7 +164,7 @@ const DoctorDashboard = () => {
         </div>
 
         {/* Stat Card 4 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
               <span className="material-symbols-outlined">payments</span>
@@ -186,18 +186,18 @@ const DoctorDashboard = () => {
           </div>
           <Link to="/doctor/appointments" className="text-primary text-xs font-bold">View All</Link>
         </div>
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden">
+        <div className="bg-surface-container-lowest rounded-2xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm overflow-hidden">
           {loading ? (
             <p className="text-center py-8 text-on-surface-variant">Loading...</p>
           ) : todayAppointments.length === 0 ? (
             <div className="p-6 text-center">
-              <span className="material-symbols-outlined text-4xl text-on-surface-variant/30 mb-2">event_busy</span>
+              <span className="material-symbols-outlined text-4xl mb-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
               <p className="text-on-surface-variant text-sm">No appointments today</p>
             </div>
           ) : (
             <div className="divide-y divide-surface-container">
               {todayAppointments.map((appt, index) => (
-                <div key={appt._id} className="p-4 flex items-center gap-4 hover:bg-surface-container-low/50 transition-colors relative overflow-hidden">
+                <div key={appt._id} className="p-4 flex items-center gap-4 hover:bg-surface-container-high/50 transition-colors relative overflow-hidden" style={{transition: 'background-color 0.2s'}}>
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
                   <div className="w-14 text-center flex-shrink-0">
                     <p className="text-base font-black font-headline text-primary leading-none">{appt.slot?.startTime?.substring(0, 5) || '09:00'}</p>
@@ -233,18 +233,18 @@ const DoctorDashboard = () => {
               <Link to="/doctor/appointments" className="px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-xl transition-all">View Full Calendar</Link>
             </div>
           </div>
-          <div className="bg-surface-container-lowest rounded-[2rem] border border-outline-variant/10 shadow-sm overflow-hidden">
+          <div className="bg-surface-container-lowest rounded-[2rem] border shadow-sm overflow-hidden" style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}}>
             {loading ? (
               <p className="text-center py-8 text-on-surface-variant">Loading...</p>
             ) : todayAppointments.length === 0 ? (
               <div className="p-8 text-center">
-                <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3">event_busy</span>
+                <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
                 <p className="text-on-surface-variant">No appointments today</p>
               </div>
             ) : (
               <div className="divide-y divide-surface-container">
                 {todayAppointments.map((appt, index) => (
-                  <div key={appt._id} className="p-5 flex items-center gap-6 hover:bg-surface-container-low/50 transition-colors relative overflow-hidden group">
+                  <div key={appt._id} className="p-5 flex items-center gap-6 hover:bg-surface-container-high/50 transition-colors relative overflow-hidden group" style={{transition: 'background-color 0.2s'}}>
                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary"></div>
                     <div className="w-16 text-center">
                       <p className="text-lg font-black font-headline text-primary leading-none">{appt.slot?.startTime?.substring(0, 5) || '09:00'}</p>
@@ -271,7 +271,7 @@ const DoctorDashboard = () => {
 
         {/* Side Quick Actions Card */}
         <div className="xl:col-span-4">
-          <div className="bg-surface-container-low rounded-3xl p-8 border border-outline-variant/10 shadow-sm flex flex-col h-full min-h-[400px]">
+          <div className="bg-surface-container-low rounded-3xl p-8 border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm flex flex-col h-full min-h-[400px]">
             <div>
               <h3 className="text-2xl font-extrabold text-on-surface mb-2">Quick Actions</h3>
               <p className="text-on-surface-variant text-sm mb-6">Manage your practice efficiently</p>

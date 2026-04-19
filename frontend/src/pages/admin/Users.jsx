@@ -49,8 +49,8 @@ const AdminUsers = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="animate-fade-in-down">
-        <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-        <p className="text-gray-500">View and manage all users</p>
+        <h1 className="text-2xl font-bold text-on-surface">User Management</h1>
+        <p className="text-on-surface-variant">View and manage all users</p>
       </div>
 
       <div className="card animate-scale-in stagger-1">
@@ -70,7 +70,7 @@ const AdminUsers = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-sm text-gray-500 border-b">
+                <tr className="text-left text-sm text-on-surface-variant border-b">
                   <th className="pb-3">User</th>
                   <th className="pb-3">Contact</th>
                   <th className="pb-3">Role</th>
@@ -80,20 +80,20 @@ const AdminUsers = () => {
               </thead>
               <tbody className="text-sm">
                 {users.map((user) => (
-                  <tr key={user._id} className="border-b last:border-0 transition-all duration-200 hover:bg-gray-50 hover:shadow-sm">
+                  <tr key={user._id} className="border-b last:border-0 transition-all duration-200 hover:bg-surface-container-low hover:shadow-sm">
                     <td className="py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-semibold">
+                        <div className="w-10 h-10 bg-surface-container-low rounded-full flex items-center justify-center text-on-surface font-semibold">
                           {user.name?.charAt(0)}
                         </div>
                         <div>
                           <p className="font-medium">{user.name}</p>
-                          <p className="text-gray-500">{user.email}</p>
+                          <p className="text-on-surface-variant">{user.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-3">
-                      <div className="text-gray-500">
+                      <div className="text-on-surface-variant">
                         {user.phone || 'N/A'}
                       </div>
                     </td>
@@ -103,7 +103,7 @@ const AdminUsers = () => {
                         {user.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="py-3 text-gray-500">
+                    <td className="py-3 text-on-surface-variant">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                   </tr>
@@ -121,7 +121,7 @@ const AdminUsers = () => {
           </div>
           <div>
             <p className="text-2xl font-bold">{users.filter((u) => u.role === 'user').length}</p>
-            <p className="text-sm text-gray-500">Patients</p>
+            <p className="text-sm text-on-surface-variant">Patients</p>
           </div>
         </div>
         <div className="card flex items-center gap-4 animate-fade-in-up stagger-3 hover-lift">
@@ -130,7 +130,7 @@ const AdminUsers = () => {
           </div>
           <div>
             <p className="text-2xl font-bold">{users.filter((u) => u.role === 'doctor').length}</p>
-            <p className="text-sm text-gray-500">Doctors</p>
+            <p className="text-sm text-on-surface-variant">Doctors</p>
           </div>
         </div>
         <div className="card flex items-center gap-4 animate-fade-in-up stagger-4 hover-lift">
@@ -139,7 +139,7 @@ const AdminUsers = () => {
           </div>
           <div>
             <p className="text-2xl font-bold">{users.filter((u) => u.role === 'admin').length}</p>
-            <p className="text-sm text-gray-500">Admins</p>
+            <p className="text-sm text-on-surface-variant">Admins</p>
           </div>
         </div>
       </div>

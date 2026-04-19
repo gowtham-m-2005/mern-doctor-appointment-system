@@ -7,13 +7,18 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-surface text-on-surface antialiased font-sans;
+  :root {
+    --on-secondary-fixed-variant: #304865;
+    --on-tertiary: #ffffff;
+    --on-tertiary-container: #ffeee7;
+    --on-tertiary-fixed: #351000;
+    --on-tertiary-fixed-variant: #7b2f00;
+    --on-error: #ffffff;
+    --on-error-container: #93000a;
   }
 
-  .dark body {
-    background-color: #1a1a24;
-    color: #e0e0e0;
+  body {
+    @apply bg-surface text-on-surface antialiased font-sans;
   }
 
   * {
@@ -40,67 +45,42 @@
 }
 
 @layer utilities {
-  /* Dark mode background colors with good contrast */
-  .dark .bg-surface-container-lowest {
-    background-color: #1f1f2e !important;
+  /* Hover effects */
+  .bg-surface-container-lowest:hover {
+    background-color: var(--surface-container-low);
   }
-  .dark .bg-surface-container-low {
-    background-color: #2a2a3e !important;
+  .bg-surface-container-low:hover {
+    background-color: var(--surface-container-high);
   }
-  .dark .bg-surface-container {
-    background-color: #252538 !important;
+  .bg-surface-container-low\/50:hover {
+    background-color: var(--surface-container-high);
   }
-  .dark .bg-surface-container-high {
-    background-color: #35354f !important;
-  }
-  .dark .bg-surface-container-highest {
-    background-color: #3d3d57 !important;
-  }
-  .dark .bg-surface-container-low\/50 {
-    background-color: #2a2a3e80 !important;
-  }
-  
-  /* Dark mode text colors with good contrast */
-  .dark .text-on-surface {
-    color: #e0e0e0 !important;
-  }
-  .dark .text-on-surface-variant {
-    color: #9ca3af !important;
-  }
-  .dark .text-on-surface-variant\/60 {
-    color: #c4c9d2 !important;
-  }
-  
-  /* Dark mode hover effects */
-  .dark .bg-surface-container-lowest:hover {
-    background-color: #252538 !important;
-  }
-  .dark .bg-surface-container-low:hover {
-    background-color: #35354f !important;
-  }
-  .dark .bg-surface-container-low\/50:hover {
-    background-color: #35354f80 !important;
-  }
-  .dark tr:hover {
-    background-color: #2a2a3e !important;
+  tr:hover {
+    background-color: var(--surface-container-low);
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-on-primary px-4 py-2 rounded-xl hover:bg-primary-container active:scale-95 transition-all duration-200 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md;
+    @apply bg-primary text-on-primary px-4 py-2 rounded-xl hover:bg-primary-container active:scale-95 transition-all duration-200 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl;
   }
   .btn-secondary {
-    @apply bg-surface-container-low text-on-surface border border-outline-variant/30 px-4 py-2 rounded-xl hover:bg-surface-container-high active:scale-95 transition-all duration-200 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md;
+    @apply bg-surface-container-low text-on-surface border px-4 py-2 rounded-xl hover:bg-surface-container-high active:scale-95 transition-all duration-200 font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl;
+    border-color: color-mix(in srgb, var(--outline-variant) 30%, transparent);
   }
   .btn-danger {
-    @apply bg-error text-on-error px-4 py-2 rounded-xl hover:bg-error-container transition-all duration-200 font-medium cursor-pointer hover:shadow-md active:scale-95;
+    @apply bg-error text-on-error px-4 py-2 rounded-xl hover:bg-error-container transition-all duration-200 font-medium cursor-pointer hover:shadow-xl active:scale-95;
   }
   .card {
-    @apply bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,82,174,0.04)] border border-outline-variant/10 p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+    @apply bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+    border-color: color-mix(in srgb, var(--outline-variant) 10%, transparent);
   }
   .input {
-    @apply w-full px-4 py-2.5 border border-outline-variant/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-sm hover:border-outline bg-surface-container-lowest;
+    @apply w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:border-primary transition-all duration-200 text-sm hover:border-outline bg-surface-container-lowest;
+    border-color: color-mix(in srgb, var(--outline-variant) 30%, transparent);
+  }
+  .input:focus {
+    --tw-ring-color: color-mix(in srgb, var(--primary) 20%, transparent);
   }
   .label {
     @apply block text-sm font-medium text-on-surface mb-1.5 transition-colors duration-200;
@@ -221,7 +201,7 @@
 
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4), 0 10px 15px -6px rgba(0, 0, 0, 0.4);
 }
 
 .hover-scale {

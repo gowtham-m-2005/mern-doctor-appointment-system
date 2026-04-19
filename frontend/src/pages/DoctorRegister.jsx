@@ -1,8 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useBrandingStore } from '../store/brandingStore'
 import api from '../api/axios'
-import { Eye, EyeOff, Mail, Lock, User, Phone, Upload, Stethoscope, GraduationCap, DollarSign, FileText } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, Phone, Upload, GraduationCap, DollarSign, FileText } from 'lucide-react'
+
+const getLogoUrl = (appLogo) => {
+  if (!appLogo) return null
+  if (appLogo.startsWith('http')) return appLogo
+  // Backend serves uploads at root path - ensure leading slash
+  return appLogo.startsWith('/') ? appLogo : `/${appLogo}`
+}
 
 const DoctorRegister = () => {
   const [form, setForm] = useState({
@@ -23,6 +31,7 @@ const DoctorRegister = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuthStore()
+  const { appName, appLogo } = useBrandingStore()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -51,10 +60,14 @@ const DoctorRegister = () => {
       <div className="w-full max-w-2xl animate-fade-in-up">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-2xl mb-4 animate-scale-in hover:scale-110 transition-transform duration-300">
-            <Stethoscope className="w-8 h-8 text-primary-600" />
+            {appLogo ? (
+              <img src={getLogoUrl(appLogo)} alt="Logo" className="w-10 h-10 object-contain" />
+            ) : (
+              <span className="material-symbols-outlined text-4xl text-primary-600">medical_services</span>
+            )}
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 animate-fade-in-up stagger-1">Doctor Registration</h1>
-          <p className="text-gray-500 mt-1 animate-fade-in-up stagger-2">Join our network of healthcare professionals</p>
+          <h1 className="text-2xl font-bold text-on-surface animate-fade-in-up stagger-1">Doctor Registration</h1>
+          <p className="text-on-surface-variant mt-1 animate-fade-in-up stagger-2">Join {appName} network of healthcare professionals</p>
         </div>
 
         <div className="card animate-scale-in stagger-3">
@@ -65,7 +78,7 @@ const DoctorRegister = () => {
               <div>
                 <label className="label">Full Name</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                   <input
                     type="text"
                     className="input pl-10"
@@ -80,7 +93,7 @@ const DoctorRegister = () => {
               <div>
                 <label className="label">Email</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                   <input
                     type="email"
                     className="input pl-10"
@@ -95,7 +108,7 @@ const DoctorRegister = () => {
               <div>
                 <label className="label">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     className="input pl-10 pr-10"
@@ -108,7 +121,7 @@ const DoctorRegister = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -118,7 +131,7 @@ const DoctorRegister = () => {
               <div>
                 <label className="label">Phone</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                   <input
                     type="tel"
                     className="input pl-10"
@@ -144,7 +157,7 @@ const DoctorRegister = () => {
               <div>
                 <label className="label">Qualification</label>
                 <div className="relative">
-                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                   <input
                     type="text"
                     className="input pl-10"
@@ -172,7 +185,7 @@ const DoctorRegister = () => {
               <div>
                 <label className="label">Consultation Fee (₹)</label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                   <input
                     type="number"
                     className="input pl-10"
@@ -213,7 +226,7 @@ const DoctorRegister = () => {
             <div>
               <label className="label">Certificate (PDF/Image)</label>
               <div className="relative">
-                <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant" />
                 <input
                   type="file"
                   className="input pl-10 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
@@ -234,7 +247,7 @@ const DoctorRegister = () => {
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <p className="text-gray-500">
+            <p className="text-on-surface-variant">
               Already have an account?{' '}
               <Link to="/login" className="text-primary-600 hover:underline font-medium">
                 Sign in

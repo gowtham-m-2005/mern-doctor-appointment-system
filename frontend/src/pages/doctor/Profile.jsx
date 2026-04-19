@@ -92,7 +92,7 @@ const DoctorProfile = () => {
             </div>
             <div className="flex-1 space-y-4">
               <div>
-                <h1 className="text-4xl font-extrabold text-on-surface tracking-tight">Dr. {user?.name || 'Doctor'}</h1>
+                <h1 className="text-4xl font-extrabold text-on-surface tracking-tight">{user?.name || 'Doctor'}</h1>
                 <p className="text-primary font-semibold text-lg">{profile?.specialization || 'Specialist'}</p>
               </div>
               <p className="text-on-surface-variant leading-relaxed max-w-2xl">
@@ -143,7 +143,7 @@ const DoctorProfile = () => {
               <input
                 id="specialization-input"
                 type="text"
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+                className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
                 value={profile?.specialization || ''}
                 onChange={(e) => setProfile({ ...profile, specialization: e.target.value })}
                 required
@@ -153,7 +153,7 @@ const DoctorProfile = () => {
               <label className="block text-sm font-medium text-on-surface mb-2">Experience (years)</label>
               <input
                 type="number"
-                className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+                className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
                 value={profile?.experience || ''}
                 onChange={(e) => setProfile({ ...profile, experience: e.target.value })}
                 required
@@ -165,7 +165,7 @@ const DoctorProfile = () => {
             <label className="block text-sm font-medium text-on-surface mb-2">Qualification</label>
             <input
               type="text"
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+              className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
               value={profile?.qualification || ''}
               onChange={(e) => setProfile({ ...profile, qualification: e.target.value })}
               required
@@ -177,7 +177,7 @@ const DoctorProfile = () => {
             <input
               id="virtual-fee-input"
               type="number"
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+              className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
               value={profile?.virtualFee || profile?.fee || ''}
               onChange={(e) => setProfile({ ...profile, virtualFee: e.target.value, fee: e.target.value })}
               required
@@ -189,7 +189,7 @@ const DoctorProfile = () => {
             <input
               id="inperson-fee-input"
               type="number"
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+              className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
               value={profile?.inPersonFee || (profile?.fee ? Math.round(profile.fee * 1.5) : '')}
               onChange={(e) => setProfile({ ...profile, inPersonFee: e.target.value })}
               required
@@ -200,7 +200,7 @@ const DoctorProfile = () => {
             <label className="block text-sm font-medium text-on-surface mb-2">Clinic Address</label>
             <input
               type="text"
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+              className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
               value={profile?.address || ''}
               onChange={(e) => setProfile({ ...profile, address: e.target.value })}
             />
@@ -210,7 +210,7 @@ const DoctorProfile = () => {
             <label className="block text-sm font-medium text-on-surface mb-2">Max Appointments Per Day</label>
             <input
               type="number"
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest"
+              className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:border-primary bg-surface-container-lowest" style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}}
               value={profile?.maxAppointmentsPerDay || 10}
               onChange={(e) => setProfile({ ...profile, maxAppointmentsPerDay: e.target.value })}
               min="1"
@@ -223,7 +223,7 @@ const DoctorProfile = () => {
           <div>
             <label className="block text-sm font-medium text-on-surface mb-2">Bio</label>
             <textarea
-              className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface-container-lowest min-h-[120px]"
+              className="w-full px-4 py-3 rounded-xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 30%, transparent)'}} focus:outline-none focus:ring-2 focus:style={{borderColor: 'color-mix(in srgb, var(--primary) 20%, transparent)'}} focus:border-primary bg-surface-container-lowest min-h-[120px]"
               value={profile?.bio || ''}
               onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
             />

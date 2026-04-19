@@ -108,7 +108,7 @@ const UserDashboard = () => {
                     {appt.doctor?.user?.name?.charAt(0) || 'D'}
                   </div>
                   <div>
-                    <p className="font-medium">Dr. {appt.doctor?.user?.name || 'Unknown'}</p>
+                    <p className="font-medium">{appt.doctor?.user?.name || 'Unknown'}</p>
                     <p className="text-sm text-gray-500">
                       {appt.slot.date} at {appt.slot.startTime}
                     </p>
