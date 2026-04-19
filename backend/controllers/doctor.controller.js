@@ -4,6 +4,8 @@ const User = require("../models/User.model");
 const { createNotification } = require("../utils/notificationScheduler");
 const { getCache, setCache, deleteCache, CacheTTL, CacheKeys } = require("../utils/cache");
 const { publishEvent, EventTypes } = require("../utils/eventBus");
+const { sendEmail } = require("../utils/emailService");
+const { getAppointmentConfirmedTemplate, getAppointmentCompletedTemplate } = require("../utils/emailTemplates");
 
 exports.getMyProfile = async (req, res) => {
   try {
@@ -321,8 +323,8 @@ exports.getDashboardStats = async (req, res) => {
 
 exports.completeAppointment = async (req, res) => {
   try {
-    const doctor = await Doctor.findOne({ user: req.user._id });
-    const appt = await Appointment.findOne({ _id: req.params.id, doctor: doctor._id });
+    const doctor = await Doctor.findOne({ user: req.user._id }).populate("user", "name");
+    const appt = await Appointment.findOne({ _id: req.params.id, doctor: doctor._id }).populate("user", "name email");
     if (!appt) return res.status(404).json({ message: "Appointment not found" });
 
     // Prevent completing already completed or cancelled appointments
@@ -359,6 +361,24 @@ exports.completeAppointment = async (req, res) => {
       appt._id
     );
 
+    // Send thank you email with prescription
+    if (appt.user?.email) {
+      const formattedDate = new Date(appt.slot.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      const htmlTemplate = getAppointmentCompletedTemplate(
+        appt.user.name,
+        doctor.user?.name || "Doctor",
+        formattedDate,
+        appt.slot.startTime,
+        appt.prescription
+      );
+      await sendEmail(
+        appt.user.email,
+        "Appointment Completed - Prescription",
+        `Thank you for visiting Dr. ${doctor.user?.name || "Doctor"}. Your appointment has been completed. Your prescription has been attached.`,
+        htmlTemplate
+      );
+    }
+
     res.json({ message: "Appointment marked as completed", appointment: appt });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -368,7 +388,7 @@ exports.completeAppointment = async (req, res) => {
 exports.confirmAppointment = async (req, res) => {
   try {
     const doctor = await Doctor.findOne({ user: req.user._id }).populate("user", "name");
-    const appt = await Appointment.findOne({ _id: req.params.id, doctor: doctor._id });
+    const appt = await Appointment.findOne({ _id: req.params.id, doctor: doctor._id }).populate("user", "name email");
     if (!appt) return res.status(404).json({ message: "Appointment not found" });
 
     // Prevent confirming already confirmed/completed/cancelled appointments
@@ -405,6 +425,22 @@ exports.confirmAppointment = async (req, res) => {
       "booking",
       appt._id
     );
+
+    // Send email confirmation
+    if (appt.user?.email) {
+      const htmlTemplate = getAppointmentConfirmedTemplate(
+        appt.user.name,
+        doctor.user?.name || "Doctor",
+        formattedDate,
+        appt.slot.startTime
+      );
+      await sendEmail(
+        appt.user.email,
+        "Appointment Confirmed",
+        `Your appointment with Dr. ${doctor.user?.name || "Doctor"} for ${formattedDate} at ${appt.slot.startTime} has been confirmed.`,
+        htmlTemplate
+      );
+    }
 
     res.json({ message: "Appointment confirmed successfully", appointment: appt });
   } catch (err) {
