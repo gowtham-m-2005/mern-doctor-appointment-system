@@ -10,8 +10,10 @@ const { adminSettingsSchema, doctorApprovalSchema } = require("../utils/validati
 router.get("/doctors/pending",     auth, requireRole("admin"), ctrl.getPendingDoctors);
 router.get("/doctors/all",         auth, requireRole("admin"), ctrl.getAllDoctors);
 router.put("/doctors/:id/approve", auth, requireRole("admin"), validate(doctorApprovalSchema), ctrl.approveDoctor);
+router.delete("/doctors/:id",      auth, requireRole("admin"), ctrl.deleteDoctor);
 router.get("/users",               auth, requireRole("admin"), ctrl.getAllUsers);
 router.put("/users/:id/toggle",    auth, requireRole("admin"), ctrl.toggleUserStatus);
+router.delete("/users/:id",        auth, requireRole("admin"), ctrl.deleteUser);
 router.get("/appointments",        auth, requireRole("admin"), ctrl.getAllAppointments);
 router.get("/dashboard",           auth, requireRole("admin"), ctrl.getDashboardStats);
 router.get("/settings",            auth, requireRole("admin"), ctrl.getSettings);

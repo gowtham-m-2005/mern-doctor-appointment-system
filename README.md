@@ -17,6 +17,18 @@ A full-stack doctor appointment booking system with role-based access, real-time
 - **Doctor Profiles** — view detailed doctor information including specialization and consultation fee
 - **Commission Tracking** — admin can track platform commission from appointments
 - **Material Design 3 UI** — modern, clean interface with smooth animations
+- **Theme System** — 6 pre-built WCAG AA compliant themes (Default Blue, Medical Teal, Professional Purple, Nature Green, Warm Orange, Modern Gray)
+- **Theme Customization** — users can select their preferred theme, admin can set default theme
+- **Branding System** — admin can customize app name, logo, and contact email
+- **Commission Settings** — admin can configure platform commission percentage
+- **Doctor Profile Management** — doctors can update specialization, qualification, experience, fees (virtual/in-person), bio, address
+- **Slot Management** — doctors can add/remove available time slots with date and time ranges (8 AM - 8 PM)
+- **Max Appointments Limit** — doctors can set maximum appointments per day (1-50)
+- **Doctor Ratings** — patient ratings displayed on doctor profiles
+- **Search & Filter** — search doctors by name, specialization, or qualification; filter by specialty
+- **Auto-Rescheduling** — affected appointments auto-rescheduled when doctor removes a slot
+- **Toast Notifications** — success/error messages using react-toastify
+- **Portal-Based Modals** — React Portal modals for prescriptions, rescheduling, and doctor profiles
 
 ---
 
@@ -24,7 +36,7 @@ A full-stack doctor appointment booking system with role-based access, real-time
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 19, Vite, Tailwind CSS, Lucide Icons |
+| Frontend | React 19, Vite, Tailwind CSS, Lucide Icons, React Router, Zustand, React Toastify |
 | Backend | Node.js, Express.js |
 | Database | MongoDB with Mongoose ODM |
 | Caching & Events | Redis (Pub/Sub for events, Caching for performance) |
@@ -33,6 +45,7 @@ A full-stack doctor appointment booking system with role-based access, real-time
 | Validation | Custom validation middleware |
 | Rate Limiting | Express Rate Limit |
 | Security | Helmet, XSS Protection, CORS |
+| State Management | Zustand (authStore, brandingStore) |
 
 ---
 
@@ -150,6 +163,12 @@ Frontend will run on `http://localhost:5173`
 | GET | `/api/users/notifications` | Get user notifications |
 | PUT | `/api/users/notifications/:id/read` | Mark notification as read |
 | PUT | `/api/users/notifications/read-all` | Mark all notifications as read |
+| GET | `/api/users/prescriptions` | Get user's prescriptions |
+
+### Public Routes
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/branding` | Get public branding settings (app name, logo, contact email) |
 
 ### Doctor Routes
 | Method | Endpoint | Description |

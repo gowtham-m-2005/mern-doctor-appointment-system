@@ -206,7 +206,7 @@ const Doctors = () => {
       {/* Slot Booking Modal - Portal */}
       {selectedDoctor && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] animate-fade-in flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col animate-scale-in shadow-2xl">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col animate-scale-in shadow-2xl">
             <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between flex-shrink-0">
               <div>
                 <h2 className="text-xl font-bold text-on-surface">Select Time Slot</h2>

@@ -382,7 +382,7 @@ const Appointments = () => {
       {/* Prescription Modal - Portal */}
       {selectedPrescription && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full animate-scale-in shadow-2xl">
+          <div className="bg-white rounded-3xl max-w-lg w-full animate-scale-in shadow-2xl">
             <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}}">
               <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined">description</span>
@@ -425,7 +425,7 @@ const Appointments = () => {
       {/* Reschedule Modal - Portal to render outside Layout */}
       {rescheduleModal && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] animate-fade-in overflow-y-auto flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full animate-scale-in max-h-[80vh] overflow-y-auto shadow-2xl">
+          <div className="bg-white rounded-3xl max-w-lg w-full animate-scale-in max-h-[80vh] overflow-y-auto shadow-2xl">
             <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between">
               <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined">event_repeat</span>
@@ -488,7 +488,7 @@ const Appointments = () => {
       {/* Doctor Profile Modal - Portal */}
       {doctorProfile && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full animate-scale-in shadow-2xl">
+          <div className="bg-white rounded-3xl max-w-lg w-full animate-scale-in shadow-2xl">
             <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between">
               <h2 className="text-xl font-bold text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined">person</span>

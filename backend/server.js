@@ -86,7 +86,7 @@ app.get("/api/branding", async (req, res) => {
 });
 
 // Routes with specific rate limiters
-app.use("/api/auth", loginLimiter, require("./routes/auth.routes"));
+app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/auth/register", registerLimiter);
 app.use("/api/users", apiLimiter, require("./routes/user.routes"));
 app.use("/api/doctor", apiLimiter, require("./routes/doctor.routes"));

@@ -249,6 +249,9 @@ exports.addPrescription = async (req, res) => {
     appt.prescription = { notes, medicines, addedAt: new Date() };
     await appt.save();
 
+    // Invalidate dashboard cache since prescription affects completion
+    await deleteCache(CacheKeys.dashboardStats(req.user._id));
+
     await createNotification(appt.user, "Prescription Added", "Your doctor has added a prescription.", "general", appt._id);
     res.json(appt);
   } catch (err) {
@@ -353,6 +356,11 @@ exports.completeAppointment = async (req, res) => {
     appt.status = "completed";
     await appt.save();
 
+    // Invalidate caches
+    await deleteCache(CacheKeys.dashboardStats(req.user._id));
+    await deleteCache(CacheKeys.doctorSlots(doctor._id));
+    await deleteCache(CacheKeys.doctorProfile(doctor._id));
+
     await createNotification(
       appt.user,
       "Appointment Completed",
@@ -408,6 +416,11 @@ exports.confirmAppointment = async (req, res) => {
 
     appt.status = "confirmed";
     await appt.save();
+
+    // Invalidate caches
+    await deleteCache(CacheKeys.dashboardStats(req.user._id));
+    await deleteCache(CacheKeys.doctorSlots(doctor._id));
+    await deleteCache(CacheKeys.doctorProfile(doctor._id));
 
     // Emit event with populated doctor
     await publishEvent(EventTypes.APPOINTMENT_CONFIRMED, {

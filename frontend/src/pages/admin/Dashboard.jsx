@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../../api/axios'
+import StatusBadge from '../../components/StatusBadge'
+import StatCard from '../../components/StatCard'
+import EmptyState from '../../components/EmptyState'
+import LoadingSkeleton from '../../components/LoadingSkeleton'
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -33,15 +37,6 @@ const AdminDashboard = () => {
     }
   }
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      confirmed: 'bg-secondary-container text-on-secondary-container',
-      pending: 'bg-yellow-100 text-yellow-700',
-      completed: 'bg-surface-variant text-on-surface-variant',
-      cancelled: 'bg-error-container text-on-error-container',
-    }
-    return <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${styles[status] || 'bg-surface-container-low'}`}>{status}</span>
-  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-24 md:pb-10 max-w-7xl mx-auto">
@@ -99,57 +94,38 @@ const AdminDashboard = () => {
 
       {/* Desktop Stats Grid */}
       <section className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Stat Card 1 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
-              <span className="material-symbols-outlined">people</span>
-            </div>
-            <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">Total</span>
-          </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Users</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.totalUsers}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">Registered patients</p>
-        </div>
-
-        {/* Stat Card 2 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <span className="material-symbols-outlined">medical_services</span>
-            </div>
-            <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">Active</span>
-          </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Approved Doctors</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.totalDoctors}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">Verified specialists</p>
-        </div>
-
-        {/* Stat Card 3 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <span className="material-symbols-outlined">event</span>
-            </div>
-            <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">All Time</span>
-          </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Appointments</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.totalAppointments}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">Booked consultations</p>
-        </div>
-
-        {/* Stat Card 4 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <span className="material-symbols-outlined">payments</span>
-            </div>
-            <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">Revenue</span>
-          </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Revenue</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">₹{stats.totalRevenue?.toFixed(2)}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">Platform earnings</p>
-        </div>
+        <StatCard
+          icon="people"
+          value={stats.totalUsers}
+          label="Total Users"
+          description="Registered patients"
+          badge="Total"
+          variant="blue"
+        />
+        <StatCard
+          icon="medical_services"
+          value={stats.totalDoctors}
+          label="Approved Doctors"
+          description="Verified specialists"
+          badge="Active"
+          variant="emerald"
+        />
+        <StatCard
+          icon="event"
+          value={stats.totalAppointments}
+          label="Total Appointments"
+          description="Booked consultations"
+          badge="All Time"
+          variant="purple"
+        />
+        <StatCard
+          icon="payments"
+          value={`₹${stats.totalRevenue?.toFixed(2)}`}
+          label="Total Revenue"
+          description="Platform earnings"
+          badge="Revenue"
+          variant="indigo"
+        />
       </section>
 
       {/* Pending Doctors Alert */}
@@ -185,16 +161,9 @@ const AdminDashboard = () => {
         </div>
 
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-surface-container-low h-16 rounded-xl animate-pulse" />
-            ))}
-          </div>
+          <LoadingSkeleton count={3} height="h-16" />
         ) : recentAppointments.length === 0 ? (
-          <div className="text-center py-12">
-            <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
-            <p className="text-on-surface-variant">No appointments yet</p>
-          </div>
+          <EmptyState icon="event_busy" message="No appointments yet" />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -227,7 +196,7 @@ const AdminDashboard = () => {
                     </td>
                     <td className="py-4 font-bold text-on-surface">₹{appt.totalFee}</td>
                     <td className="py-3">
-                      {getStatusBadge(appt.status)}
+                      <StatusBadge status={appt.status} />
                     </td>
                   </tr>
                 ))}

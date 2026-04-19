@@ -49,7 +49,13 @@ const DoctorRegister = () => {
       login(data)
       navigate('/doctor')
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed')
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Registration failed'
+      const errors = err.response?.data?.errors
+      if (errors && Array.isArray(errors)) {
+        setError(`${errorMessage}: ${errors.join(', ')}`)
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setLoading(false)
     }
@@ -126,6 +132,7 @@ const DoctorRegister = () => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                <p className="text-xs text-on-surface-variant mt-1">Must contain 8+ characters, uppercase, lowercase, number, and special character (@$!%*?&)</p>
               </div>
 
               <div>

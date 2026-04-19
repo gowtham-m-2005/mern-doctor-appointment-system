@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import api from '../../api/axios'
-import { CheckCircle, XCircle, Stethoscope, Clock, ExternalLink, X, Search, RefreshCw } from 'lucide-react'
+import { CheckCircle, XCircle, Stethoscope, Clock, ExternalLink, X, Search, RefreshCw, Trash2 } from 'lucide-react'
 
 const BACKEND = 'http://localhost:5000'
 
@@ -10,6 +10,7 @@ const AdminDoctors = () => {
   const [pendingDoctors, setPendingDoctors] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedDoctor, setSelectedDoctor] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
 
@@ -40,6 +41,17 @@ const AdminDoctors = () => {
       if (selectedDoctor?._id === id) setSelectedDoctor(null)
     } catch (err) {
       alert(err.response?.data?.message || 'Action failed')
+    }
+  }
+
+  const handleDeleteDoctor = async (doctorId) => {
+    try {
+      await api.delete(`/admin/doctors/${doctorId}`)
+      fetchDoctors()
+      setDeleteConfirm(null)
+      if (selectedDoctor?._id === doctorId) setSelectedDoctor(null)
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete doctor')
     }
   }
 
@@ -253,6 +265,13 @@ const AdminDoctors = () => {
                             Re-approve
                           </button>
                         )}
+                        <button
+                          onClick={() => setDeleteConfirm(doctor)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete doctor"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -266,7 +285,7 @@ const AdminDoctors = () => {
       {/* Doctor detail modal - Portal */}
       {selectedDoctor && createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-surface-container-lowest rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
             <div className="p-6 border-b style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)'}} flex items-center justify-between">
               <h2 className="text-xl font-bold text-on-surface">Doctor Details</h2>
               <button
@@ -365,6 +384,33 @@ const AdminDoctors = () => {
                   Re-approve Doctor
                 </button>
               )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteConfirm && createPortal(
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border" style={{borderColor: 'color-mix(in srgb, var(--outline) 10%, transparent)'}}>
+            <h3 className="text-lg font-bold text-on-surface mb-2">Delete Doctor?</h3>
+            <p className="text-on-surface-variant mb-6">
+              Are you sure you want to delete <strong>Dr. {deleteConfirm.user?.name}</strong>? This will also delete their user account, all appointments, notifications, and cached data. This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 text-on-surface hover:bg-surface-container-low rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteDoctor(deleteConfirm._id)}
+                className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>,

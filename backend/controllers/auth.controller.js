@@ -1,7 +1,7 @@
 const User = require("../models/User.model");
 const Doctor = require("../models/Doctor.model");
 const jwt = require("jsonwebtoken");
-const { checkAccountLockout, recordFailedAttempt, resetFailedAttempts } = require("../middleware/accountLockout.middleware");
+const { validatePasswordStrength } = require("../utils/passwordValidator");
 const { logAuthEvent } = require("../middleware/securityLogger.middleware");
 
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -34,18 +34,8 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Check if account is locked
-    const lockoutCheck = await checkAccountLockout(req, res);
-    if (lockoutCheck && lockoutCheck.locked) {
-      return res.status(429).json({
-        message: 'Account temporarily locked due to too many failed login attempts',
-        retryAfter: lockoutCheck.retryAfter,
-      });
-    }
-    
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
-      recordFailedAttempt(email);
       logAuthEvent('FAILED_LOGIN', req, { email, reason: 'Invalid credentials' });
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -54,8 +44,6 @@ exports.login = async (req, res) => {
       return res.status(403).json({ message: "Account disabled" });
     }
 
-    // Reset failed attempts on successful login
-    resetFailedAttempts(email);
     logAuthEvent('SUCCESS_LOGIN', req, { email, userId: user._id });
 
     let doctorData = null;

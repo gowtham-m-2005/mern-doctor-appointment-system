@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import api from '../../api/axios'
 import { Link } from 'react-router-dom'
+import StatusBadge from '../../components/StatusBadge'
+import StatCard from '../../components/StatCard'
+import EmptyState from '../../components/EmptyState'
+import LoadingSkeleton from '../../components/LoadingSkeleton'
 
 const DoctorDashboard = () => {
   const { doctor, user } = useAuthStore()
@@ -118,23 +122,15 @@ const DoctorDashboard = () => {
 
       {/* Desktop Stats Grid */}
       <section className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Stat Card 1 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary-fixed text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
-              <span className="material-symbols-outlined">calendar_month</span>
-            </div>
-            <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${stats.growthPercent >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
-              {stats.growthPercent >= 0 ? '+' : ''}{stats.growthPercent}%
-            </span>
-          </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Visits</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.total}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">from last month</p>
-        </div>
-
-        {/* Stat Card 2 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
+        <StatCard
+          icon="calendar_month"
+          value={stats.total}
+          label="Total Visits"
+          description="from last month"
+          badge={`${stats.growthPercent >= 0 ? '+' : ''}${stats.growthPercent}%`}
+          variant="default"
+        />
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border shadow-sm hover:shadow-md transition-shadow" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
               <span className="material-symbols-outlined">group</span>
@@ -147,9 +143,7 @@ const DoctorDashboard = () => {
           <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.today}</h3>
           <p className="text-[11px] text-on-surface-variant mt-2">{stats.todayPending || 0} consultations left</p>
         </div>
-
-        {/* Stat Card 3 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border shadow-sm hover:shadow-md transition-shadow" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <span className="material-symbols-outlined">task_alt</span>
@@ -162,9 +156,7 @@ const DoctorDashboard = () => {
             <div className="bg-emerald-500 h-full" style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`, transition: 'width 1s ease-in-out' }}></div>
           </div>
         </div>
-
-        {/* Stat Card 4 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border shadow-sm hover:shadow-md transition-shadow" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
               <span className="material-symbols-outlined">payments</span>
@@ -190,10 +182,7 @@ const DoctorDashboard = () => {
           {loading ? (
             <p className="text-center py-8 text-on-surface-variant">Loading...</p>
           ) : todayAppointments.length === 0 ? (
-            <div className="p-6 text-center">
-              <span className="material-symbols-outlined text-4xl mb-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
-              <p className="text-on-surface-variant text-sm">No appointments today</p>
-            </div>
+            <EmptyState icon="event_busy" message="No appointments today" size="small" />
           ) : (
             <div className="divide-y divide-surface-container">
               {todayAppointments.map((appt, index) => (
@@ -237,10 +226,7 @@ const DoctorDashboard = () => {
             {loading ? (
               <p className="text-center py-8 text-on-surface-variant">Loading...</p>
             ) : todayAppointments.length === 0 ? (
-              <div className="p-8 text-center">
-                <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
-                <p className="text-on-surface-variant">No appointments today</p>
-              </div>
+              <EmptyState icon="event_busy" message="No appointments today" />
             ) : (
               <div className="divide-y divide-surface-container">
                 {todayAppointments.map((appt, index) => (

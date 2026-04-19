@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useState } from 'react'
 import { useAuthStore } from './store/authStore'
 import { useBrandingStore } from './store/brandingStore'
 import { useEffect } from 'react'
@@ -32,10 +33,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 }
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore()
-  if (isAuthenticated) {
-    if (user?.role === 'admin') return <Navigate to="/admin" />
-    if (user?.role === 'doctor') return <Navigate to="/doctor" />
+  const { isAuthenticated, user, token } = useAuthStore()
+  if (isAuthenticated && token && user) {
+    if (user.role === 'admin') return <Navigate to="/admin" />
+    if (user.role === 'doctor') return <Navigate to="/doctor" />
     return <Navigate to="/dashboard" />
   }
   return children
@@ -44,15 +45,36 @@ const PublicRoute = ({ children }) => {
 function App() {
   const { theme, fetchThemeSettings } = useAuthStore()
   const { fetchBranding } = useBrandingStore()
+  const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
     applyTheme(theme)
   }, [theme])
 
   useEffect(() => {
-    fetchThemeSettings()
-    fetchBranding()
+    const init = async () => {
+      try {
+        await Promise.all([
+          fetchThemeSettings().catch(() => {}),
+          fetchBranding().catch(() => {})
+        ])
+      } catch (err) {
+        console.error('Init error:', err)
+      } finally {
+        setIsLoaded(true)
+      }
+    }
+    init()
   }, [])
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+      </div>
+    )
+  }
+
   return (
     <Routes>
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />

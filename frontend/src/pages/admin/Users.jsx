@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import api from '../../api/axios'
-import { Users, User, Stethoscope, Shield, Mail, Phone } from 'lucide-react'
+import { Users, User, Stethoscope, Shield, Mail, Phone, Trash2 } from 'lucide-react'
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   useEffect(() => {
     fetchUsers()
@@ -18,6 +20,16 @@ const AdminUsers = () => {
       console.error(err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async (userId) => {
+    try {
+      await api.delete(`/admin/users/${userId}`)
+      setUsers(users.filter(u => u._id !== userId))
+      setDeleteConfirm(null)
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete user')
     }
   }
 
@@ -76,6 +88,7 @@ const AdminUsers = () => {
                   <th className="pb-3">Role</th>
                   <th className="pb-3">Status</th>
                   <th className="pb-3">Joined</th>
+                  <th className="pb-3">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -105,6 +118,17 @@ const AdminUsers = () => {
                     </td>
                     <td className="py-3 text-on-surface-variant">
                       {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3">
+                      {user.role !== 'admin' && (
+                        <button
+                          onClick={() => setDeleteConfirm(user)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete user"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -143,6 +167,33 @@ const AdminUsers = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteConfirm && createPortal(
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-scale-in border" style={{borderColor: 'color-mix(in srgb, var(--outline) 10%, transparent)'}}>
+            <h3 className="text-lg font-bold text-on-surface mb-2">Delete User?</h3>
+            <p className="text-on-surface-variant mb-6">
+              Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This will also delete all their appointments and notifications. This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 text-on-surface hover:bg-surface-container-low rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm._id)}
+                className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }

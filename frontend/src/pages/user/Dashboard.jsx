@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import api from '../../api/axios'
-import { Calendar, Clock, FileText, Stethoscope, ChevronRight, Settings } from 'lucide-react'
+import { Settings } from 'lucide-react'
+import StatusBadge from '../../components/StatusBadge'
+import StatCard from '../../components/StatCard'
+import EmptyState from '../../components/EmptyState'
+import LoadingSkeleton from '../../components/LoadingSkeleton'
 
 const UserDashboard = () => {
   const { user } = useAuthStore()
@@ -31,15 +35,6 @@ const UserDashboard = () => {
     }
   }
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      confirmed: 'bg-secondary-container text-on-secondary-container',
-      pending: 'bg-yellow-100 text-yellow-700',
-      completed: 'bg-surface-variant text-on-surface-variant',
-      cancelled: 'bg-error-container text-on-error-container',
-    }
-    return <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${styles[status] || 'bg-surface-container-low'}`}>{status}</span>
-  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-24 md:pb-10 max-w-7xl mx-auto">
@@ -102,21 +97,15 @@ const UserDashboard = () => {
 
       {/* Desktop Stats Grid */}
       <section className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Stat Card 1 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary-fixed text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-colors">
-              <span className="material-symbols-outlined">calendar_month</span>
-            </div>
-            <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">All Time</span>
-          </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Total Appointments</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.total}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">Your booking history</p>
-        </div>
-
-        {/* Stat Card 2 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
+        <StatCard
+          icon="calendar_month"
+          value={stats.total}
+          label="Total Appointments"
+          description="Your booking history"
+          badge="All Time"
+          variant="default"
+        />
+        <div className="bg-surface-container-lowest p-6 rounded-3xl border shadow-sm hover:shadow-md transition-shadow" style={{ borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
               <span className="material-symbols-outlined">schedule</span>
@@ -127,19 +116,14 @@ const UserDashboard = () => {
           <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.upcoming}</h3>
           <p className="text-[11px] text-on-surface-variant mt-2">Scheduled visits</p>
         </div>
-
-        {/* Stat Card 3 */}
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border style={{borderColor: 'color-mix(in srgb, var(--outline-variant) 10%, transparent)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'}} shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <span className="material-symbols-outlined">check_circle</span>
-            </div>
-            <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-lg">History</span>
-          </div>
-          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Completed</p>
-          <h3 className="text-3xl font-extrabold font-headline mt-1 text-on-surface">{stats.completed}</h3>
-          <p className="text-[11px] text-on-surface-variant mt-2">Past consultations</p>
-        </div>
+        <StatCard
+          icon="check_circle"
+          value={stats.completed}
+          label="Completed"
+          description="Past consultations"
+          badge="History"
+          variant="emerald"
+        />
       </section>
 
       {/* Mobile Recent Appointments */}
@@ -149,16 +133,9 @@ const UserDashboard = () => {
           <Link to="/my-appointments" className="text-primary text-xs font-bold">View All</Link>
         </div>
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-surface-container-lowest h-20 rounded-2xl animate-pulse" />
-            ))}
-          </div>
+          <LoadingSkeleton count={3} height="h-20" className="rounded-2xl" />
         ) : appointments.length === 0 ? (
-          <div className="text-center py-8 bg-surface-container-lowest rounded-2xl">
-            <span className="material-symbols-outlined text-4xl mb-2" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
-            <p className="text-on-surface-variant text-sm">No appointments yet</p>
-          </div>
+          <EmptyState icon="event_busy" message="No appointments yet" />
         ) : (
           <div className="space-y-3">
             {appointments.map((appt) => (
@@ -173,7 +150,7 @@ const UserDashboard = () => {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-xs text-on-surface-variant">₹{appt.totalFee}</p>
-                  {getStatusBadge(appt.status)}
+                  <StatusBadge status={appt.status} />
                 </div>
               </div>
             ))}
@@ -195,19 +172,15 @@ const UserDashboard = () => {
         </div>
 
         {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-surface-container-low h-32 rounded-2xl animate-pulse" />
-            ))}
-          </div>
+          <LoadingSkeleton count={3} height="h-32" className="rounded-2xl" />
         ) : appointments.length === 0 ? (
-          <div className="text-center py-12">
-            <span className="material-symbols-outlined text-5xl mb-3" style={{color: 'color-mix(in srgb, var(--on-surface-variant) 30%, transparent)'}}>event_busy</span>
-            <p className="text-on-surface-variant mb-4">No appointments yet</p>
-            <Link to="/doctors" className="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold hover:bg-primary-container transition-all shadow-md shadow-primary/10">
-              Book Your First Appointment
-            </Link>
-          </div>
+          <EmptyState 
+            icon="event_busy" 
+            message="No appointments yet" 
+            actionText="Book Your First Appointment"
+            actionLink="/doctors"
+            size="default"
+          />
         ) : (
           <div className="space-y-4">
             {appointments.map((appt) => (
@@ -223,7 +196,7 @@ const UserDashboard = () => {
                       <p className="text-primary text-sm font-semibold">{appt.doctor?.specialization}</p>
                       <p className="text-on-surface-variant text-sm mt-1">{appt.slot.startTime} - {appt.slot.endTime}</p>
                     </div>
-                    {getStatusBadge(appt.status)}
+                    <StatusBadge status={appt.status} />
                   </div>
                 </div>
                 <div className="text-right">

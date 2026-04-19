@@ -7,8 +7,8 @@ const { requireRole } = require("../middleware/role.middleware");
 // Public endpoint - get available themes
 router.get("/list", ctrl.getThemes);
 
-// Get current theme settings (auth required)
-router.get("/settings", auth, ctrl.getThemeSettings);
+// Get current theme settings (public - no auth required)
+router.get("/settings", ctrl.getThemeSettings);
 
 // Update theme settings (admin only)
 router.put("/settings", auth, requireRole("admin"), ctrl.updateThemeSettings);
